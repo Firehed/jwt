@@ -1,0 +1,10 @@
+<phpunit
+    bootstrap="vendor/firehed/arctools/tests/bootstrap.php"
+    forceCoversAnnotation="true"
+    >
+    <testsuites>
+        <testsuite name="input">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+</phpunit>

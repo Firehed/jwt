@@ -1,0 +1,28 @@
+{
+    "name": "firehed/jwt",
+    "description": "JSON Web Token tools",
+    "repositories": [
+        {
+            "type":"vcs",
+            "url":"git@git.ericstern.com:arctools.git"
+        }
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Eric Stern",
+            "email": "eric@ericstern.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Firehed\\JWT\\": "src/"
+        }
+    },
+    "require": {
+        "firehed/arctools": "*@dev"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "*"
+    }
+}
