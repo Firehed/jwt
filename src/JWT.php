@@ -4,12 +4,6 @@ namespace Firehed\JWT;
 
 use Exception;
 
-class JWTException extends Exception {}
-class TokenExpiredException extends JWTException {}
-class TokenNotYetValidException extends JWTException {}
-class InvalidFormatException extends JWTException {}
-class InvalidSignatureException extends JWTException {}
-
 class JWT {
 
     private $headers = [];
