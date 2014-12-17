@@ -56,6 +56,20 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
         JWT::decode('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOjF9.');
     }
 
+    /**
+     * @covers ::isSigned
+     * @dataProvider vectors
+     */
+    public function testIsSigned($token, $headers, $claims, $secret, $shouldBeSigned) {
+        $tok = JWT::decode($token, $secret);
+        if ($shouldBeSigned) {
+            $this->assertTrue($tok->isSigned(), 'isSigned should return TRUE');
+        }
+        else {
+            $this->assertFalse($tok->isSigned(), 'isSigned should return FALSE');
+        }
+    } // testIsSigned
+
     public function vectors() {
         return [
             [
@@ -65,6 +79,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
                 ['alg' => 'HS256', 'typ' => 'JWT',],
                 ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
                 'secret',
+                true,
             ],
             [
                 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOjEyMzQ1Njc4OTAsI'.
@@ -72,6 +87,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
                 ['alg' => 'none', 'typ' => 'JWT',],
                 ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
                 '',
+                false,
             ],
             [
                 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OTAsI'.
@@ -81,6 +97,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
                 ['alg' => 'HS512', 'typ' => 'JWT',],
                 ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
                 'secret',
+                true,
             ],
         ];
     } // vectors

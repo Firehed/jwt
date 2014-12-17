@@ -51,6 +51,10 @@ class JWT {
         return $this->claims;
     }
 
+    public function isSigned() {
+        return $this->headers['alg'] != 'none';
+    } // isSigned
+
     private function enforceExpirations() {
         if (isset($this->claims['exp'])) {
             $exp = $this->claims['exp'];
