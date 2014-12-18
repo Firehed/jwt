@@ -16,8 +16,6 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
     public function testDecode($vector, $exp_headers, $exp_claims, $secret) {
         $JWT = JWT::decode($vector, $secret);
         $this->assertInstanceOf('Firehed\JWT\JWT', $JWT);
-        $this->assertSame($exp_headers, $JWT->getHeaders(),
-            'Headers did not match');
         $this->assertSame($exp_claims, $JWT->getClaims(),
             'Claims did not match');
     } // testDecode

@@ -9,17 +9,6 @@ class JWT {
     private $headers = [];
     private $claims = [];
 
-
-    private static $supported_algos = [
-        'HS256' => 'HMAC',
-        'HS384' => 'HMAC',
-        'HS512' => 'HMAC',
-//        'RS256' => 'OSSL',
-//        'RS384' => 'OSSL',
-//        'RS512' => 'OSSL',
-        'none'  => 'none',
-    ];
-
     public static function decode($encoded_token, $key = null) {
         // This should exactly follow s7.2 of the IETF JWT spec
         $parts = explode('.', $encoded_token);
@@ -44,15 +33,12 @@ class JWT {
         $this->claims = $claims;
     } // __construct
 
-    public function getHeaders() {
-        return $this->headers;
-    }
     public function getClaims() {
         return $this->claims;
     }
 
     public function isSigned() {
-        return $this->headers['alg'] != 'none';
+        return !$this->getAlgorithm()->is(Algorithm::NONE());
     } // isSigned
 
     private function enforceExpirations() {
@@ -100,27 +86,35 @@ class JWT {
     } // encode
 
     private function sign($key) {
-        $algorithm = $this->headers['alg'];
-        $family = self::$supported_algos[$algorithm];
-        $size = substr($algorithm, 2); // this will be wrong for 'none' but ignored so it doesn't matter
+        $alg = $this->getAlgorithm();
 
-        switch ($family) {
-        case 'none':
-            return '';
-        case 'HMAC':
-            $exp_hash = hash_hmac('SHA'.$size,
-                self::b64encode($this->headers).'.'.self::b64encode($this->claims),
-                $key,
-                true);
-            return rtrim(strtr(base64_encode($exp_hash), '+/', '-_'), '=');
-        case 'OSSL':
-            throw new Exception("OpenSSL not ready yet");
+        $payload = self::b64encode($this->headers).
+            '.'.
+            self::b64encode($this->claims);
+
+        switch ($alg()) {
+        case Algorithm::NONE:
+            $data = '';
+            break;
+        case Algorithm::HMAC_SHA_256:
+            $data = self::HMAC('SHA256', $payload, $key);
+            break;
+        case Algorithm::HMAC_SHA_384:
+            $data = self::HMAC('SHA384', $payload, $key);
+            break;
+        case Algorithm::HMAC_SHA_512:
+            $data = self::HMAC('SHA512', $payload, $key);
+            break;
+        default:
+            throw new Exception("Unsupported algorithm");
             // use openssl_sign and friends to do the signing
-
         }
-
-        // Fixme: respect the algorithm
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     } // sign
+
+    private static function HMAC($alg, $payload, $key) {
+        return hash_hmac($alg, $payload, $key, true);
+    } // HMAC
 
     private static function b64decode($base64_str) {
         $json = base64_decode(strtr($base64_str, '-_', '+/'));
@@ -135,5 +129,33 @@ class JWT {
         $json = json_encode($data);
         return rtrim(strtr(base64_encode($json), '+/', '-_'), '=');
     } // b64encode
+
+    private function getAlgorithm() {
+        if (!isset($this->headers['alg'])) {
+            throw new Exception("Algorithm is not specified");
+        }
+        $alg = $this->headers['alg'];
+        if (!isset(self::$alg_to_algorithm[$alg])) {
+            throw new Exception("Algorithm is invalid");
+        }
+        $value = new Algorithm(self::$alg_to_algorithm[$alg]);
+        return $value;
+    } // getAlgorithm
+
+    private static $alg_to_algorithm = [
+        'none' => Algorithm::NONE,
+        'HS256' => Algorithm::HMAC_SHA_256,
+        'HS384' => Algorithm::HMAC_SHA_384,
+        'HS512' => Algorithm::HMAC_SHA_512,
+        'ES256' => Algorithm::ECDSA_256,
+        'ES384' => Algorithm::ECDSA_384,
+        'ES512' => Algorithm::ECDSA_512,
+        'RS256' => Algorithm::PKCS_256,
+        'RS384' => Algorithm::PKCS_384,
+        'RS512' => Algorithm::PKCS_512,
+        'PS256' => Algorithm::PSS_256,
+        'PS384' => Algorithm::PSS_384,
+        'PS512' => Algorithm::PSS_512,
+    ];
 
 }

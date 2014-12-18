@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d04bc737a1bc46cb9661f757d9ce99c0",
+    "hash": "44a17e4cff694276c72cf61b1bc54563",
     "packages": [
         {
             "name": "firehed/arctools",
@@ -34,6 +34,38 @@
             ],
             "description": "Easily integrate with Arcanist and libphutil",
             "time": "2014-10-24 21:23:38"
+        },
+        {
+            "name": "firehed/common",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "git@git.ericstern.com:common.git",
+                "reference": "2001c0160b966bc8f44e36439d7a0057fe4feddc"
+            },
+            "require": {
+                "firehed/arctools": "*@dev"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "*"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Firehed\\Common\\": "src/"
+                }
+            },
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Eric Stern",
+                    "email": "eric@ericstern.com"
+                }
+            ],
+            "description": "Common PHP tools",
+            "time": "2014-12-17 23:56:32"
         }
     ],
     "packages-dev": [
@@ -832,7 +864,8 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "firehed/arctools": 20
+        "firehed/arctools": 20,
+        "firehed/common": 20
     },
     "prefer-stable": false,
     "platform": [],
