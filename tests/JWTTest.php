@@ -95,6 +95,32 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
         JWT::decode('dGVzdA.dGVzdA.');
     }
 
+    /**
+     * @covers ::encode
+     * @expectedException Firehed\JWT\JWTException
+     */
+    public function testExplicitlySettingAlgorithmIsRequired() {
+        $jwt = new JWT(['foo' => 'bar']);
+        $jwt->encode('secret');
+    } // testExplicitlySettingAlgorithmIsRequired
+
+    /**
+     * @covers ::setAlgorithm
+     */
+    public function testSetAlgorithmIsChainable() {
+        $jwt = new JWT(['foo' => 'bar']);
+        $this->assertSame($jwt, $jwt->setAlgorithm(Algorithm::NONE()),
+            'setAlgorithm should return $this');
+    } // testSetAlgorithmIsChainable
+
+    /**
+     * @covers ::__construct
+     */
+    public function testConstruct() {
+        $jwt = new JWT(['foo' => 'bar']);
+        $this->assertInstanceOf('Firehed\JWT\JWT', $jwt, 'Construct failed');
+    } // testConstruct
+
     public function vectors() {
         return [
             [
