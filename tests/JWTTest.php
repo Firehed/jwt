@@ -13,7 +13,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
      * @covers ::decode
      * @dataProvider vectors
      * */
-    public function testDecode($vector, $exp_headers, $exp_claims, $secret) {
+    public function testDecode($vector, Algorithm $algorithm, $exp_claims, $secret) {
         $JWT = JWT::decode($vector, $secret);
         $this->assertInstanceOf('Firehed\JWT\JWT', $JWT);
         $this->assertSame($exp_claims, $JWT->getClaims(),
@@ -35,8 +35,9 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
      * @covers ::encode
      * @dataProvider vectors
      */
-    public function testEncode($vector, $headers, $claims, $secret) {
-        $tok = new JWT($headers, $claims);
+    public function testEncode($vector, Algorithm $algorithm, $claims, $secret) {
+        $tok = new JWT($claims);
+        $tok->setAlgorithm($algorithm);
         $out = $tok->encode($secret);
         $this->assertSame($vector, $out, 'Output did not match test vector');
     } // testEncode
@@ -58,7 +59,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
      * @covers ::isSigned
      * @dataProvider vectors
      */
-    public function testIsSigned($token, $headers, $claims, $secret, $shouldBeSigned) {
+    public function testIsSigned($token, Algorithm $algorithm, $claims, $secret, $shouldBeSigned) {
         $tok = JWT::decode($token, $secret);
         if ($shouldBeSigned) {
             $this->assertTrue($tok->isSigned(), 'isSigned should return TRUE');
@@ -100,7 +101,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
                 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OTAs'.
                 'Im5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.eoaDVGTClRdfxUZXiP'.
                 's3f8FmJDkDE_VCQFXqKxpLsts',
-                ['alg' => 'HS256', 'typ' => 'JWT',],
+                Algorithm::HMAC_SHA_256(),
                 ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
                 'secret',
                 true,
@@ -108,7 +109,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
             [
                 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOjEyMzQ1Njc4OTAsI'.
                 'm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.',
-                ['alg' => 'none', 'typ' => 'JWT',],
+                Algorithm::NONE(),
                 ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
                 '',
                 false,
@@ -118,7 +119,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
                 'm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.fSCfxDB4cFVvzd6IqiNT'.
                 'uItTYiv-tAp5u5XplJWRDBGNF1rgGn1gyYK9LuHobWWpwqCzI7pEHDlyrbNHaQ'.
                 'Jmqg',
-                ['alg' => 'HS512', 'typ' => 'JWT',],
+                Algorithm::HMAC_SHA_512(),
                 ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
                 'secret',
                 true,

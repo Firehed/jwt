@@ -6,8 +6,28 @@ use Exception;
 
 class JWT {
 
-    private $headers = [];
+    private $headers = [
+        'alg' => null,
+        'typ' => 'JWT',
+    ];
+
     private $claims = [];
+
+    private static $alg_to_algorithm = [
+        'none' => Algorithm::NONE,
+        'HS256' => Algorithm::HMAC_SHA_256,
+        'HS384' => Algorithm::HMAC_SHA_384,
+        'HS512' => Algorithm::HMAC_SHA_512,
+        'ES256' => Algorithm::ECDSA_256,
+        'ES384' => Algorithm::ECDSA_384,
+        'ES512' => Algorithm::ECDSA_512,
+        'RS256' => Algorithm::PKCS_256,
+        'RS384' => Algorithm::PKCS_384,
+        'RS512' => Algorithm::PKCS_512,
+        'PS256' => Algorithm::PSS_256,
+        'PS384' => Algorithm::PSS_384,
+        'PS512' => Algorithm::PSS_512,
+    ];
 
     public static function decode($encoded_token, $key = null) {
         // This should exactly follow s7.2 of the IETF JWT spec
@@ -17,9 +37,10 @@ class JWT {
                 'Invalid format, wrong number of segments');
         }
         list($enc_header, $enc_claims, $signature) = $parts;
-        $header = self::b64decode($enc_header);
+        $headers = self::b64decode($enc_header);
         $claims = self::b64decode($enc_claims);
-        $token = new self($header, $claims);
+        $token = new self($claims);
+        $token->headers = $headers;
         if (!$token->verify($signature, $key)) {
             throw new InvalidSignatureException("Signature is invalid");
         }
@@ -28,8 +49,7 @@ class JWT {
     }
 
 
-    public function __construct(array $headers = [], array $claims = []) {
-        $this->headers = $headers;
+    public function __construct(array $claims = []) {
         $this->claims = $claims;
     } // __construct
 
@@ -142,20 +162,12 @@ class JWT {
         return $value;
     } // getAlgorithm
 
-    private static $alg_to_algorithm = [
-        'none' => Algorithm::NONE,
-        'HS256' => Algorithm::HMAC_SHA_256,
-        'HS384' => Algorithm::HMAC_SHA_384,
-        'HS512' => Algorithm::HMAC_SHA_512,
-        'ES256' => Algorithm::ECDSA_256,
-        'ES384' => Algorithm::ECDSA_384,
-        'ES512' => Algorithm::ECDSA_512,
-        'RS256' => Algorithm::PKCS_256,
-        'RS384' => Algorithm::PKCS_384,
-        'RS512' => Algorithm::PKCS_512,
-        'PS256' => Algorithm::PSS_256,
-        'PS384' => Algorithm::PSS_384,
-        'PS512' => Algorithm::PSS_512,
-    ];
+    public function setAlgorithm(Algorithm $alg) {
+        $raw = $alg->getValue();
+        $map = array_flip(self::$alg_to_algorithm);
+        $alg_str = $map[$raw];
+        $this->headers['alg'] = $alg_str;
+        return $this;
+    } // setAlgorithm
 
 }
