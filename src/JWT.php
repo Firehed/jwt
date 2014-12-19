@@ -132,7 +132,7 @@ class JWT {
 
     private function getAlgorithm() {
         if (!isset($this->headers['alg'])) {
-            throw new Exception("Algorithm is not specified");
+            throw new JWTException("Algorithm is not specified");
         }
         $alg = $this->headers['alg'];
         if (!isset(self::$alg_to_algorithm[$alg])) {

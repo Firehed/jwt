@@ -68,6 +68,32 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
         }
     } // testIsSigned
 
+    /**
+     * @covers ::encode
+     * @expectedException Firehed\JWT\JWTException
+     */
+    public function testNotSettingAlgorithmFails() {
+        $tok = new JWT([], ['data' => true]);
+        $tok->encode('test key');
+    } // testNotSettingAlgorithmFails
+
+    /**
+     * @covers ::decode
+     * @expectedException Firehed\JWT\InvalidFormatException
+     */
+    public function testDecodeStringWithNoPeriods() {
+        JWT::decode('asdfklj290iasdf');
+    } // testDecodeStringWithNoPeriods
+
+    /**
+     * @covers ::decode
+     * @expectedException Firehed\JWT\InvalidFormatException
+     */
+    public function testDecodeInvalidJSON() {
+        // test.test
+        JWT::decode('dGVzdA.dGVzdA.');
+    }
+
     public function vectors() {
         return [
             [
