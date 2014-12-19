@@ -46,8 +46,7 @@ class JWT {
         }
         $token->enforceExpirations();
         return $token;
-    }
-
+    } // decode
 
     public function __construct(array $claims = []) {
         $this->claims = $claims;
@@ -55,7 +54,7 @@ class JWT {
 
     public function getClaims() {
         return $this->claims;
-    }
+    } // getClaims
 
     public function isSigned() {
         return !$this->getAlgorithm()->is(Algorithm::NONE());
@@ -79,7 +78,7 @@ class JWT {
     private function verify($signature, $key) {
         $enc_exp_hash = $this->sign($key);
         return self::hashEquals($enc_exp_hash, $signature);
-    }
+    } // verify
 
     private static function hashEquals($expected, $provided) {
         if (function_exists('hash_equals')) {

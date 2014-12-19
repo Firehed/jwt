@@ -47,13 +47,14 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
      */
     public function testEnforceNBF() {
         JWT::decode('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJuYmYiOjk5OTk5OTk5OTk5OX0.');
-    }
+    } // testEnforceNBF
+
     /**
      * @expectedException Firehed\JWT\TokenExpiredException
      */
     public function testEnforceEXP() {
         JWT::decode('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOjF9.');
-    }
+    } // testEnforceEXP
 
     /**
      * @covers ::isSigned
@@ -93,7 +94,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
     public function testDecodeInvalidJSON() {
         // test.test
         JWT::decode('dGVzdA.dGVzdA.');
-    }
+    } // testDecodeInvalidJSON
 
     /**
      * @covers ::encode
@@ -152,4 +153,5 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
             ],
         ];
     } // vectors
+
 }
