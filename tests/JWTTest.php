@@ -32,6 +32,21 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
     } // testDecodeThrowsWithBadSignature
 
     /**
+     * @covers ::getUnverifiedClaims
+     */
+    public function testDecodeAllowsInvalidSignatureWhenExplicitlyConfigured() {
+        $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OT'.
+            'AsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.thisisnotvalid';
+        $JWT = JWT::decode($vector);
+        $expected = [
+            "sub" => 1234567890,
+            "name" => "John Doe",
+            "admin" => true
+        ];
+        $this->assertSame($expected, $JWT->getUnverifiedClaims());
+    } // testDecodeAllowsInvalidSignatureWhenExplicitlyConfigured
+
+    /**
      * @covers ::encode
      * @dataProvider vectors
      */
@@ -115,6 +130,78 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
     } // testSetAlgorithmIsChainable
 
     /**
+     * @covers ::getClaims
+     * @expectedException BadMethodCallException
+     */
+    public function testNoneAlgorithmRequiresGetUnverifedClaims() {
+        $vector = 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJmb28iOiJiYXIifQ.';
+        $jwt = JWT::decode($vector);
+        $jwt->getClaims();
+    } // testNoneAlgorithmRequiresGetUnverifedClaims
+
+    /**
+     * @covers ::getUnverifiedClaims
+     */
+    public function testNoneAlgorithmWorksWithUnverifedClaims() {
+        $vector = 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.'.
+            'eyJmb28iOiJiYXIifQ.';
+        $JWT = JWT::decode($vector);
+        $claims = $JWT->getUnverifiedClaims();
+        $this->assertSame(["foo" => "bar"], $claims,
+            "Claims were not decoded correctly");
+    } // testNoneAlgorithmWorksWithUnverifedClaims
+
+    /**
+     * @covers ::verify
+     * @covers ::getClaims
+     * @covers ::decode
+     */
+    public function testVerifyAfterDecode() {
+        $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'.
+            'eyJ1aWQiOiJzZWNyZXQifQ.'.
+            'LOf2KSz1soy8F7JpYrp85QwhcGSIt1sBCc91iFU1JuQ';
+        $JWT = JWT::decode($vector);
+        // The claims in the vector provide the secret. This is to simulate the
+        // situation where a value in the claim would be used to look up the
+        // secret used to sign it, e.g. per-user signatures.
+        $secret = $JWT->getUnverifiedClaims()['uid'];
+        $JWT->verify(Algorithm::HMAC_SHA_256(), $secret);
+        $claims = $JWT->getClaims();
+        $this->assertEquals(['uid' => 'secret'], $claims);
+    } // testVerifyAfterDecode
+
+    /**
+     * @covers ::verify
+     * @expectedException Firehed\JWT\InvalidSignatureException
+     */
+    public function testVerifyThrowsWhenInitialDecodeWasNotVerified() {
+        $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'.
+            'eyJ1aWQiOiJzZWNyZXQifQ.'.
+            'thisisnotvalid';
+        $JWT = JWT::decode($vector);
+        // The claims in the vector provide the secret. This is to simulate the
+        // situation where a value in the claim would be used to look up the
+        // secret used to sign it, e.g. per-user signatures.
+        $secret = $JWT->getUnverifiedClaims()['uid'];
+        $JWT->verify(Algorithm::HMAC_SHA_256(), $secret);
+    }
+
+    /**
+     * @covers ::verify
+     * @expectedException Firehed\JWT\InvalidSignatureException
+     */
+    public function testModifiedAlgorithmTriggersInvalidSignature() {
+        $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'.
+            'eyJmb28iOiJiYXIifQ.'.
+            'dtxWM6MIcgoeMgH87tGvsNDY6cHWL6MGW4LeYvnm1JA';
+        // Assume the server is hardcoded to HMAC-SHA-512 or the same was
+        // dervied from the key id. The provided, tampered-with token is signed
+        // with HS256, although the secret is actually valid (indicitave of the
+        // RSxxx swap
+        JWT::decode($vector, Algorithm::HMAC_SHA_512(), 'secret');
+    } // testModifiedAlgorithmTriggersInvalidSignature
+
+    /**
      * @covers ::__construct
      */
     public function testConstruct() {
@@ -132,14 +219,6 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
                 ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
                 'secret',
                 true,
-            ],
-            [
-                'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJzdWIiOjEyMzQ1Njc4OTAsI'.
-                'm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.',
-                Algorithm::NONE(),
-                ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
-                '',
-                false,
             ],
             [
                 'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OTAsI'.

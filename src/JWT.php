@@ -3,6 +3,7 @@
 namespace Firehed\JWT;
 
 use Exception;
+use BadMethodCallException;
 
 class JWT {
 
@@ -12,6 +13,10 @@ class JWT {
     ];
 
     private $claims = [];
+
+    private $signature = '';
+
+    private $is_verified = false;
 
     private static $alg_to_algorithm = [
         'none' => Algorithm::NONE,
@@ -41,8 +46,9 @@ class JWT {
         $claims = self::b64decode($enc_claims);
         $token = new self($claims);
         $token->headers = $headers;
-        if (!$token->verify($signature, $alg, $key)) {
-            throw new InvalidSignatureException("Signature is invalid");
+        $token->signature = $signature;
+        if ($key) {
+            $token->verify($alg, $key);
         }
         $token->enforceExpirations();
         return $token;
@@ -52,8 +58,19 @@ class JWT {
         $this->claims = $claims;
     } // __construct
 
-    public function getClaims() {
+    public function getUnverifiedClaims() {
         return $this->claims;
+    }
+
+    public function getClaims() {
+        // Prevent any access to the data unless verification has succeeded or
+        // has been explicitly bypassed
+        if ($this->is_verified) {
+            return $this->claims;
+        }
+        throw new BadMethodCallException(
+            'This token is not verified! Either call `verify` first, or '.
+            'access the unverified claims with `getUnverifiedClaims`.');
     } // getClaims
 
     public function isSigned() {
@@ -81,13 +98,15 @@ class JWT {
      * hard-coded into the codebase, or (more preferably) derived from the
      * "kid" (key ID) header value
      */
-    private function verify($signature, Algorithm $alg = null, $key = '') {
-        if (!$alg) {
-            $alg = Algorithm::NONE();
-        }
+    public function verify(Algorithm $alg, $key) {
         $this->setAlgorithm($alg);
         $enc_exp_hash = $this->sign($key);
-        return self::hashEquals($enc_exp_hash, $signature);
+        if (self::hashEquals($enc_exp_hash, $this->signature)) {
+            $this->is_verified = true;
+            return true;
+        }
+        $this->is_verified = false;
+        throw new InvalidSignatureException("Signature is invalid");
     } // verify
 
     private static function hashEquals($expected, $provided) {
