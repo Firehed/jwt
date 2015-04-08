@@ -29,7 +29,7 @@ class JWT {
         'PS512' => Algorithm::PSS_512,
     ];
 
-    public static function decode($encoded_token, $key = null) {
+    public static function decode($encoded_token, Algorithm $alg = null, $key = null) {
         // This should exactly follow s7.2 of the IETF JWT spec
         $parts = explode('.', $encoded_token);
         if (3 !== count($parts)) {
@@ -41,7 +41,7 @@ class JWT {
         $claims = self::b64decode($enc_claims);
         $token = new self($claims);
         $token->headers = $headers;
-        if (!$token->verify($signature, $key)) {
+        if (!$token->verify($signature, $alg, $key)) {
             throw new InvalidSignatureException("Signature is invalid");
         }
         $token->enforceExpirations();
@@ -75,7 +75,17 @@ class JWT {
         }
     } // enforceExpirations
 
-    private function verify($signature, $key) {
+    /**
+     * The algorithm is explicitly provided to the verification process to
+     * prevent algorithm-switching attacks. The value should be either
+     * hard-coded into the codebase, or (more preferably) derived from the
+     * "kid" (key ID) header value
+     */
+    private function verify($signature, Algorithm $alg = null, $key = '') {
+        if (!$alg) {
+            $alg = Algorithm::NONE();
+        }
+        $this->setAlgorithm($alg);
         $enc_exp_hash = $this->sign($key);
         return self::hashEquals($enc_exp_hash, $signature);
     } // verify

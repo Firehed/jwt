@@ -14,7 +14,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider vectors
      * */
     public function testDecode($vector, Algorithm $algorithm, $exp_claims, $secret) {
-        $JWT = JWT::decode($vector, $secret);
+        $JWT = JWT::decode($vector, $algorithm, $secret);
         $this->assertInstanceOf('Firehed\JWT\JWT', $JWT);
         $this->assertSame($exp_claims, $JWT->getClaims(),
             'Claims did not match');
@@ -28,7 +28,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
         $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OT'.
             'AsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.thisisnotvalid';
         $secret = 'secret';
-        $JWT = JWT::decode($vector, $secret);
+        $JWT = JWT::decode($vector, Algorithm::HMAC_SHA_256(), $secret);
     } // testDecodeThrowsWithBadSignature
 
     /**
@@ -61,7 +61,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
      * @dataProvider vectors
      */
     public function testIsSigned($token, Algorithm $algorithm, $claims, $secret, $shouldBeSigned) {
-        $tok = JWT::decode($token, $secret);
+        $tok = JWT::decode($token, $algorithm, $secret);
         if ($shouldBeSigned) {
             $this->assertTrue($tok->isSigned(), 'isSigned should return TRUE');
         }
