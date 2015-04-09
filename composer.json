@@ -1,16 +1,6 @@
 {
     "name": "firehed/jwt",
     "description": "JSON Web Token tools",
-    "repositories": [
-        {
-            "type":"vcs",
-            "url":"git@git.ericstern.com:arctools.git"
-        },
-        {
-            "type":"vcs",
-            "url":"git@git.ericstern.com:common.git"
-        }
-    ],
     "license": "MIT",
     "authors": [
         {
