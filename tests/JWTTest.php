@@ -11,6 +11,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ::decode
+     * @covers ::getClaims
      * @dataProvider vectors
      * */
     public function testDecode($vector, Algorithm $algorithm, $exp_claims, $secret) {
@@ -61,7 +62,8 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
      * @expectedException Firehed\JWT\TokenNotYetValidException
      */
     public function testEnforceNBF() {
-        JWT::decode('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJuYmYiOjk5OTk5OTk5OTk5OX0.');
+        JWT::decode('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.'.
+            'eyJuYmYiOjk5OTk5OTk5OTk5OX0.');
     } // testEnforceNBF
 
     /**
@@ -90,7 +92,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
      * @expectedException Firehed\JWT\JWTException
      */
     public function testNotSettingAlgorithmFails() {
-        $tok = new JWT([], ['data' => true]);
+        $tok = new JWT(['data' => true]);
         $tok->encode('test key');
     } // testNotSettingAlgorithmFails
 
