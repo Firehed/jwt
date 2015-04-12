@@ -45,6 +45,7 @@ class JWT {
         $headers = self::b64decode($enc_header);
         $claims = self::b64decode($enc_claims);
         $token = new self($claims);
+        $token->is_verified = false;
         $token->headers = $headers;
         $token->signature = $signature;
         if ($key) {
@@ -56,6 +57,7 @@ class JWT {
 
     public function __construct(array $claims = []) {
         $this->claims = $claims;
+        $this->is_verified = true;
     } // __construct
 
     public function getUnverifiedClaims() {

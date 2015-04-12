@@ -97,6 +97,17 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
     } // testNotSettingAlgorithmFails
 
     /**
+     * @covers ::__construct
+     * @covers ::getClaims
+     */
+    public function testNewTokenAllowsAccessToClaims() {
+        $data = ['data' => true];
+        $tok = new JWT($data);
+        $this->assertEquals($data, $tok->getClaims(),
+            'getClaims did not return the provided data');
+    } // testNewTokenAllowsAccessToClaims
+
+    /**
      * @covers ::decode
      * @expectedException Firehed\JWT\InvalidFormatException
      */
