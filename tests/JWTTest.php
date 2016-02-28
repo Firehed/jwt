@@ -88,6 +88,36 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
     } // testIsSigned
 
     /**
+     * @covers ::setKeyID
+     */
+    public function testSetKeyIDProducesCorrectOutput() {
+        $expected = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6M30.eyJ1c2VyI'.
+            'joiRm9vIEJhciJ9.E2gekVU0lErEsIqIWSdG7-32yVhALHr_tZu5DFfWVjM';
+        $jwt = new JWT(['user' => 'Foo Bar']);
+        $jwt->setKeyId(3)
+            ->setAlgorithm(Algorithm::HMAC_SHA_256());
+        $this->assertSame($expected, $jwt->encode('secret'),
+            'Encoded output did not match expected');
+    }
+
+    /**
+     * @covers ::getKeyID
+     */
+    public function testGetKeyIDFromDecodedInput() {
+        $data = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6M30.eyJ1c2VyIjoiR'.
+            'm9vIEJhciJ9.E2gekVU0lErEsIqIWSdG7-32yVhALHr_tZu5DFfWVjM';
+        $jwt = JWT::decode($data);
+        $this->assertSame(3, $jwt->getKeyID(),
+            '`kid` header was not retreived correctly');
+        // use key id 3 to determine secret
+        $jwt->verify(Algorithm::HMAC_SHA_256(), 'secret');
+        $this->assertSame(['user' => 'Foo Bar'], $jwt->getClaims(),
+            'getClaims was wrong after checking key id');
+
+
+    }
+
+    /**
      * @covers ::encode
      * @expectedException Firehed\JWT\JWTException
      */

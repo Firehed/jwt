@@ -203,4 +203,14 @@ class JWT {
         return $this;
     } // setAlgorithm
 
+    public function getKeyID() {
+        return isset($this->headers['kid'])
+            ? $this->headers['kid']
+            : null;
+    } // getKeyID
+
+    public function setKeyID($key_id) {
+        $this->headers['kid'] = $key_id;
+        return $this;
+    } // setKeyID
 }
