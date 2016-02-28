@@ -184,6 +184,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @covers ::getClaims
+     * @covers ::verify
      * @expectedException BadMethodCallException
      */
     public function testNoneAlgorithmCannotVerifyClaims() {
@@ -306,6 +307,13 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
                 ['url' => 'http://example.com'],
                 '',
                 false,
+            ],
+            [
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.InN0cmluZyI.zBuTvgcC60cejL1RdmMCwNDGbnQGsK_TYBh2iCQTwus',
+                Algorithm::HMAC_SHA_256(),
+                "string",
+                'secret',
+                true,
             ],
         ];
     } // vectors

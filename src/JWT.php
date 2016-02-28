@@ -55,7 +55,7 @@ class JWT {
         return $token;
     } // decode
 
-    public function __construct(array $claims = []) {
+    public function __construct($claims = null) {
         $this->claims = $claims;
         $this->is_verified = true;
     } // __construct
@@ -178,7 +178,7 @@ class JWT {
         return $decoded;
     } // b64decode
 
-    private static function b64encode(array $data) {
+    private static function b64encode($data) {
         $json = json_encode($data, \JSON_UNESCAPED_SLASHES);
         return rtrim(strtr(base64_encode($json), '+/', '-_'), '=');
     } // b64encode
