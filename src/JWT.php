@@ -179,7 +179,7 @@ class JWT {
     } // b64decode
 
     private static function b64encode(array $data) {
-        $json = json_encode($data);
+        $json = json_encode($data, \JSON_UNESCAPED_SLASHES);
         return rtrim(strtr(base64_encode($json), '+/', '-_'), '=');
     } // b64encode
 

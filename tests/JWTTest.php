@@ -17,7 +17,7 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
     public function testDecode($vector, Algorithm $algorithm, $exp_claims, $secret) {
         $JWT = JWT::decode($vector, $algorithm, $secret);
         $this->assertInstanceOf('Firehed\JWT\JWT', $JWT);
-        $this->assertSame($exp_claims, $JWT->getClaims(),
+        $this->assertSame($exp_claims, $JWT->getUnverifiedClaims(),
             'Claims did not match');
     } // testDecode
 
@@ -234,6 +234,13 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
     } // testConstruct
 
     public function vectors() {
+        // [
+        //  encoded JWT,
+        //  algorithm,
+        //  claims,
+        //  key,
+        //  should be signed
+        // ]
         return [
             [
                 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OTAs'.
@@ -253,6 +260,22 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
                 ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
                 'secret',
                 true,
+            ],
+            [
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJodHRwOi8vZXhhb'.
+                'XBsZS5jb20ifQ.yEJmrAmC_Tr_lVOV5C0yAyK__omFr9J8BM_nulPpGOA',
+                Algorithm::HMAC_SHA_256(),
+                ['url' => 'http://example.com'],
+                'secret',
+                true,
+            ],
+            [
+                'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJ1cmwiOiJodHRwOi8vZXhhbX'.
+                'BsZS5jb20ifQ.',
+                Algorithm::NONE(),
+                ['url' => 'http://example.com'],
+                '',
+                false,
             ],
         ];
     } // vectors
