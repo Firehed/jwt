@@ -153,6 +153,17 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
     } // testNoneAlgorithmRequiresGetUnverifedClaims
 
     /**
+     * @covers ::getClaims
+     * @expectedException BadMethodCallException
+     */
+    public function testNoneAlgorithmCannotVerifyClaims() {
+        $vector = 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJmb28iOiJiYXIifQ.';
+        $jwt = JWT::decode($vector);
+        $jwt->verify(Algorithm::NONE(), '');
+        $jwt->getClaims();
+    }
+
+    /**
      * @covers ::getUnverifiedClaims
      */
     public function testNoneAlgorithmWorksWithUnverifedClaims() {

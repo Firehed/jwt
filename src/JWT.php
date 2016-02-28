@@ -101,6 +101,9 @@ class JWT {
      * "kid" (key ID) header value
      */
     public function verify(Algorithm $alg, $key) {
+        if ($alg->is(Algorithm::NONE())) {
+            return;
+        }
         $this->setAlgorithm($alg);
         $enc_exp_hash = $this->sign($key);
         if (self::hashEquals($enc_exp_hash, $this->signature)) {
