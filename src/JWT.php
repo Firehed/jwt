@@ -150,13 +150,13 @@ class JWT {
             $data = '';
             break;
         case Algorithm::HMAC_SHA_256:
-            $data = self::HMAC('SHA256', $payload, $key);
+            $data = hash_hmac('SHA256', $payload, $key, true);
             break;
         case Algorithm::HMAC_SHA_384:
-            $data = self::HMAC('SHA384', $payload, $key);
+            $data = hash_hmac('SHA384', $payload, $key, true);
             break;
         case Algorithm::HMAC_SHA_512:
-            $data = self::HMAC('SHA512', $payload, $key);
+            $data = hash_hmac('SHA512', $payload, $key, true);
             break;
         default:
             throw new Exception("Unsupported algorithm");
@@ -164,10 +164,6 @@ class JWT {
         }
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     } // sign
-
-    private static function HMAC($alg, $payload, $key) {
-        return hash_hmac($alg, $payload, $key, true);
-    } // HMAC
 
     private static function b64decode($base64_str) {
         $json = base64_decode(strtr($base64_str, '-_', '+/'));
