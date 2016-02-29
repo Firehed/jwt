@@ -130,6 +130,7 @@ class SessionHandler implements SessionHandlerInterface
         list($alg, $key, $keyID) = $this->getSecret();
         $data = [
             'jti' => $session_id,
+//            future considerations:
 //            'nbf' => not before,
 //            'exp' => expires,
             self::CLAIM => $session_data,
@@ -142,13 +143,14 @@ class SessionHandler implements SessionHandlerInterface
             throw new OverflowException(
                 "Too much data in session to use JWT driver");
         }
+        $params = session_get_cookie_params();
         ($this->writer)($this->cookie,
             $data,
-            $expires=time()+86400,
-            $path='/',
-            $domain='',
-            $secure=false,
-            $httponly=true);
+            $params['lifetime'],
+            $params['path'],
+            $params['domain'],
+            $params['secure'],
+            $params['httponly']);
         return true;
     }
 
