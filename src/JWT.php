@@ -55,7 +55,7 @@ class JWT {
         return $token;
     } // decode
 
-    public function __construct($claims = null) {
+    public function __construct(array $claims = []) {
         $this->claims = $claims;
         $this->is_verified = true;
     } // __construct

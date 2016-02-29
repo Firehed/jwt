@@ -308,13 +308,6 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
                 '',
                 false,
             ],
-            [
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.InN0cmluZyI.zBuTvgcC60cejL1RdmMCwNDGbnQGsK_TYBh2iCQTwus',
-                Algorithm::HMAC_SHA_256(),
-                "string",
-                'secret',
-                true,
-            ],
         ];
     } // vectors
 
