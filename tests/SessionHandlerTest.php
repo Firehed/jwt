@@ -65,9 +65,9 @@ class SessionHandlerTest extends \PHPUnit_Framework_TestCase
      * @covers ::read
      */
     public function testRead() {
-        $_COOKIE['jwt_sid'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MX0'.
-            '.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzAzMTg2OyJ9.Y9gokU2iYi7'.
-            'Kt46G3_L0LKfJyHbFz1aJGJoXGql2dJE';
+        $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
+            'I6IkpXVCIsImtpZCI6MX0.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzA'.
+            'zMTg2OyJ9.Y9gokU2iYi7Kt46G3_L0LKfJyHbFz1aJGJoXGql2dJE';
         $expected = 'x|i:1456703186;';
         $data = $this->handler->read('session_id');
         $this->assertSame($expected, $data,
@@ -78,9 +78,9 @@ class SessionHandlerTest extends \PHPUnit_Framework_TestCase
      * @covers ::read
      */
     public function testReadWithUnexpectedKeyID() {
-        $_COOKIE['jwt_sid'] = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6Mn0'.
-            '.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzAzMTg2OyJ9.fy0iwbVX0VZ'.
-            'Uw7VI68BucHJiEB8Mnhx-bVlAUYssLrg';
+        $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
+            'I6IkpXVCIsImtpZCI6Mn0.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzA'.
+            'zMTg2OyJ9.fy0iwbVX0VZUw7VI68BucHJiEB8Mnhx-bVlAUYssLrg';
         $data = $this->handler->read('session_id');
         $this->assertSame('', $data,
             'JWT with unknown key ID should return an empty string');
