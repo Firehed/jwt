@@ -14,6 +14,11 @@ use OverflowException;
 class SessionHandlerTest extends \PHPUnit_Framework_TestCase
 {
 
+    /**
+     * Stores the data that would have gone to `setcookie`
+     */
+    private $cookieData = '';
+
     public function setUp() {
         $this->handler = new SessionHandler([
             1 => [
@@ -144,11 +149,14 @@ class SessionHandlerTest extends \PHPUnit_Framework_TestCase
                     'alg' => Algorithm::NONE(),
                 ]
             ]],
-
         ];
     }
 
-    private $cookieData = '';
+    // -( Helpers )------------------------------------------------------------
+
+    /**
+     * Injected replacement callback for direct `setCookie` function
+     */
     public function setCookie(...$args) {
         $this->cookieData = $args[1];
     }
