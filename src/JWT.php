@@ -18,22 +18,6 @@ class JWT {
 
     private $is_verified = false;
 
-    private static $alg_to_algorithm = [
-        'none' => Algorithm::NONE,
-        'HS256' => Algorithm::HMAC_SHA_256,
-        'HS384' => Algorithm::HMAC_SHA_384,
-        'HS512' => Algorithm::HMAC_SHA_512,
-        'ES256' => Algorithm::ECDSA_256,
-        'ES384' => Algorithm::ECDSA_384,
-        'ES512' => Algorithm::ECDSA_512,
-        'RS256' => Algorithm::PKCS_256,
-        'RS384' => Algorithm::PKCS_384,
-        'RS512' => Algorithm::PKCS_512,
-        'PS256' => Algorithm::PSS_256,
-        'PS384' => Algorithm::PSS_384,
-        'PS512' => Algorithm::PSS_512,
-    ];
-
     public static function decode($encoded_token, Algorithm $alg = null, $key = null) {
         // This should exactly follow s7.2 of the IETF JWT spec
         $parts = explode('.', $encoded_token);
@@ -183,19 +167,12 @@ class JWT {
         if (!isset($this->headers['alg'])) {
             throw new JWTException("Algorithm is not specified");
         }
-        $alg = $this->headers['alg'];
-        if (!isset(self::$alg_to_algorithm[$alg])) {
-            throw new Exception("Algorithm is invalid");
-        }
-        $value = new Algorithm(self::$alg_to_algorithm[$alg]);
-        return $value;
+        // This will error out if the algorithm is invalid
+        return new Algorithm($this->headers['alg']);
     } // getAlgorithm
 
     public function setAlgorithm(Algorithm $alg) {
-        $raw = $alg->getValue();
-        $map = array_flip(self::$alg_to_algorithm);
-        $alg_str = $map[$raw];
-        $this->headers['alg'] = $alg_str;
+        $this->headers['alg'] = $alg->getValue();
         return $this;
     } // setAlgorithm
 
