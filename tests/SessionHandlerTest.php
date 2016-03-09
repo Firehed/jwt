@@ -82,6 +82,18 @@ class SessionHandlerTest extends \PHPUnit_Framework_TestCase
     /**
      * @covers ::read
      */
+    public function testReadWithForgedSignature() {
+        $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
+            'I6IkpXVCIsImtpZCI6MX0.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzA'.
+            'zMTg2OyJ9.invalidsig';
+        $data = $this->handler->read('');
+        $this->assertSame('', $data,
+            'Cookie with invalid signature should return no data when read');
+    }
+
+    /**
+     * @covers ::read
+     */
     public function testReadWithUnexpectedKeyID() {
         $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
             'I6IkpXVCIsImtpZCI6Mn0.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzA'.

@@ -112,9 +112,13 @@ class SessionHandler implements SessionHandlerInterface
         if (!$alg) {
             return '';
         }
-        $jwt->verify($alg, $key);
-        $claims = $jwt->getClaims();
-        return $claims[self::CLAIM];
+        try {
+            $jwt->verify($alg, $key);
+            $claims = $jwt->getClaims();
+            return $claims[self::CLAIM];
+        } catch (InvalidSignatureException $e) {
+            return '';
+        }
     }
 
     /**
