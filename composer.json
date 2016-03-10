@@ -15,7 +15,9 @@
     },
     "require": {
         "firehed/arctools": "*@dev",
-        "firehed/common": "*@dev"
+        "firehed/common": "*@dev",
+        "firehed/security": "*@dev",
+        "php": ">=7.0"
     },
     "require-dev": {
         "phpunit/phpunit": "*"

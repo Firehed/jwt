@@ -1,6 +1,8 @@
 <?php
 
 namespace Firehed\JWT;
+use Firehed\Security\Secret;
+use BadMethodCallException;
 
 /**
  * @coversDefaultClass Firehed\JWT\JWT
@@ -10,27 +12,27 @@ namespace Firehed\JWT;
 class JWTTest extends \PHPUnit_Framework_TestCase {
 
     /**
-     * @covers ::decode
+     * @covers ::fromEncoded
      * @covers ::getClaims
      * @dataProvider vectors
      * */
-    public function testDecode($vector, Algorithm $algorithm, $exp_claims, $secret) {
-        $JWT = JWT::decode($vector, $algorithm, $secret);
+    public function testDecode(string $vector, array $exp_claims, KeyContainer $keys) {
+        $JWT = JWT::fromEncoded($vector, $keys);
         $this->assertInstanceOf('Firehed\JWT\JWT', $JWT);
         $this->assertSame($exp_claims, $JWT->getUnverifiedClaims(),
             'Claims did not match');
     } // testDecode
 
     /**
-     * @covers ::decode
-     * @expectedException Firehed\JWT\InvalidSignatureException
+     * @covers ::getClaims
      */
-    public function testDecodeThrowsWithBadSignature() {
+    public function testGetClaimsThrowsWithBadSignature() {
         $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OT'.
             'AsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.thisisnotvalid';
-        $secret = 'secret';
-        $JWT = JWT::decode($vector, Algorithm::HMAC_SHA_256(), $secret);
-    } // testDecodeThrowsWithBadSignature
+        $jwt = JWT::fromEncoded($vector, $this->getKeyContainer());
+        $this->expectException(InvalidSignatureException::class);
+        $jwt->getClaims();
+    } // testGetClaimsThrowsWithBadSignature
 
     /**
      * @covers ::getUnverifiedClaims
@@ -38,7 +40,8 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
     public function testDecodeAllowsInvalidSignatureWhenExplicitlyConfigured() {
         $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OT'.
             'AsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.thisisnotvalid';
-        $JWT = JWT::decode($vector);
+        $JWT = JWT::fromEncoded($vector,
+            $this->getKeyContainer()->setDefaultKey('none'));
         $expected = [
             "sub" => 1234567890,
             "name" => "John Doe",
@@ -48,13 +51,13 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
     } // testDecodeAllowsInvalidSignatureWhenExplicitlyConfigured
 
     /**
-     * @covers ::encode
+     * @covers ::getEncoded
      * @dataProvider vectors
      */
-    public function testEncode($vector, Algorithm $algorithm, $claims, $secret) {
+    public function testEncode(string $vector, array $claims, KeyContainer $keys) {
         $tok = new JWT($claims);
-        $tok->setAlgorithm($algorithm);
-        $out = $tok->encode($secret);
+        $tok->setKeys($keys);
+        $out = $tok->getEncoded();
         $this->assertSame($vector, $out, 'Output did not match test vector');
     } // testEncode
 
@@ -62,68 +65,63 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
      * @expectedException Firehed\JWT\TokenNotYetValidException
      */
     public function testEnforceNBF() {
-        JWT::decode('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.'.
-            'eyJuYmYiOjk5OTk5OTk5OTk5OX0.');
+        JWT::fromEncoded('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.'.
+            'eyJuYmYiOjk5OTk5OTk5OTk5OX0.',
+            $this->getKeyContainer()->setDefaultKey('none'));
     } // testEnforceNBF
 
     /**
      * @expectedException Firehed\JWT\TokenExpiredException
      */
     public function testEnforceEXP() {
-        JWT::decode('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOjF9.');
+        JWT::fromEncoded('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOjF9.',
+            $this->getKeyContainer()->setDefaultKey('none'));
     } // testEnforceEXP
 
     /**
-     * @covers ::isSigned
-     * @dataProvider vectors
+     * @covers ::getEncoded
      */
-    public function testIsSigned($token, Algorithm $algorithm, $claims, $secret, $shouldBeSigned) {
-        $tok = JWT::decode($token, $algorithm, $secret);
-        if ($shouldBeSigned) {
-            $this->assertTrue($tok->isSigned(), 'isSigned should return TRUE');
-        }
-        else {
-            $this->assertFalse($tok->isSigned(), 'isSigned should return FALSE');
-        }
-    } // testIsSigned
-
-    /**
-     * @covers ::setKeyID
-     */
-    public function testSetKeyIDProducesCorrectOutput() {
+    public function testSpecifyingEncodingKeyProducesCorrectOutput() {
         $expected = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6M30.eyJ1c2VyI'.
             'joiRm9vIEJhciJ9.E2gekVU0lErEsIqIWSdG7-32yVhALHr_tZu5DFfWVjM';
+        $keys = (new KeyContainer())
+            ->addKey(3, Algorithm::HMAC_SHA_256(), new Secret('secret'))
+            ->addKey(1, Algorithm::HMAC_SHA_384(), new Secret('xxx'))
+            ->addKey(2, Algorithm::HMAC_SHA_512(), new Secret('yyy'));
         $jwt = new JWT(['user' => 'Foo Bar']);
-        $jwt->setKeyId(3)
-            ->setAlgorithm(Algorithm::HMAC_SHA_256());
-        $this->assertSame($expected, $jwt->encode('secret'),
+        $jwt->setKeys($keys);
+        $this->assertSame($expected, $jwt->getEncoded(3),
             'Encoded output did not match expected');
     }
 
     /**
+     * Ensures that the key ID header value takes precedence when multiple keys
+     * are made available to the decoding method, and the data remains correct.
      * @covers ::getKeyID
      */
     public function testGetKeyIDFromDecodedInput() {
         $data = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6M30.eyJ1c2VyIjoiR'.
             'm9vIEJhciJ9.E2gekVU0lErEsIqIWSdG7-32yVhALHr_tZu5DFfWVjM';
-        $jwt = JWT::decode($data);
+        $kc = (new KeyContainer())
+            ->addKey(2, Algorithm::HMAC_SHA_384(), new Secret('xxx'))
+            ->addKey(3, Algorithm::HMAC_SHA_256(), new Secret('secret'))
+            ->addKey(4, Algorithm::HMAC_SHA_512(), new Secret('yyy'))
+            ->setDefaultKey(2);
+        $jwt = JWT::fromEncoded($data, $kc);
         $this->assertSame(3, $jwt->getKeyID(),
             '`kid` header was not retreived correctly');
         // use key id 3 to determine secret
-        $jwt->verify(Algorithm::HMAC_SHA_256(), 'secret');
         $this->assertSame(['user' => 'Foo Bar'], $jwt->getClaims(),
             'getClaims was wrong after checking key id');
-
-
     }
 
     /**
-     * @covers ::encode
-     * @expectedException Firehed\JWT\JWTException
+     * @covers ::getEncoded
      */
-    public function testNotSettingAlgorithmFails() {
+    public function testNotSettingKeysFails() {
         $tok = new JWT(['data' => true]);
-        $tok->encode('test key');
+        $this->expectException(BadMethodCallException::class);
+        $tok->getEncoded();
     } // testNotSettingAlgorithmFails
 
     /**
@@ -138,39 +136,21 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
     } // testNewTokenAllowsAccessToClaims
 
     /**
-     * @covers ::decode
+     * @covers ::fromEncoded
      * @expectedException Firehed\JWT\InvalidFormatException
      */
     public function testDecodeStringWithNoPeriods() {
-        JWT::decode('asdfklj290iasdf');
+        JWT::fromEncoded('asdfklj290iasdf', $this->getKeyContainer());
     } // testDecodeStringWithNoPeriods
 
     /**
-     * @covers ::decode
+     * @covers ::fromEncoded
      * @expectedException Firehed\JWT\InvalidFormatException
      */
     public function testDecodeInvalidJSON() {
         // test.test
-        JWT::decode('dGVzdA.dGVzdA.');
+        JWT::fromEncoded('dGVzdA.dGVzdA.', $this->getKeyContainer());
     } // testDecodeInvalidJSON
-
-    /**
-     * @covers ::encode
-     * @expectedException Firehed\JWT\JWTException
-     */
-    public function testExplicitlySettingAlgorithmIsRequired() {
-        $jwt = new JWT(['foo' => 'bar']);
-        $jwt->encode('secret');
-    } // testExplicitlySettingAlgorithmIsRequired
-
-    /**
-     * @covers ::setAlgorithm
-     */
-    public function testSetAlgorithmIsChainable() {
-        $jwt = new JWT(['foo' => 'bar']);
-        $this->assertSame($jwt, $jwt->setAlgorithm(Algorithm::NONE()),
-            'setAlgorithm should return $this');
-    } // testSetAlgorithmIsChainable
 
     /**
      * @covers ::getClaims
@@ -178,72 +158,13 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
      */
     public function testNoneAlgorithmRequiresGetUnverifedClaims() {
         $vector = 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJmb28iOiJiYXIifQ.';
-        $jwt = JWT::decode($vector);
+        $jwt = JWT::fromEncoded($vector,
+            $this->getKeyContainer()->setDefaultKey('none'));
         $jwt->getClaims();
     } // testNoneAlgorithmRequiresGetUnverifedClaims
 
     /**
      * @covers ::getClaims
-     * @covers ::verify
-     * @expectedException BadMethodCallException
-     */
-    public function testNoneAlgorithmCannotVerifyClaims() {
-        $vector = 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJmb28iOiJiYXIifQ.';
-        $jwt = JWT::decode($vector);
-        $jwt->verify(Algorithm::NONE(), '');
-        $jwt->getClaims();
-    }
-
-    /**
-     * @covers ::getUnverifiedClaims
-     */
-    public function testNoneAlgorithmWorksWithUnverifedClaims() {
-        $vector = 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.'.
-            'eyJmb28iOiJiYXIifQ.';
-        $JWT = JWT::decode($vector);
-        $claims = $JWT->getUnverifiedClaims();
-        $this->assertSame(["foo" => "bar"], $claims,
-            "Claims were not decoded correctly");
-    } // testNoneAlgorithmWorksWithUnverifedClaims
-
-    /**
-     * @covers ::verify
-     * @covers ::getClaims
-     * @covers ::decode
-     */
-    public function testVerifyAfterDecode() {
-        $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'.
-            'eyJ1aWQiOiJzZWNyZXQifQ.'.
-            'LOf2KSz1soy8F7JpYrp85QwhcGSIt1sBCc91iFU1JuQ';
-        $JWT = JWT::decode($vector);
-        // The claims in the vector provide the secret. This is to simulate the
-        // situation where a value in the claim would be used to look up the
-        // secret used to sign it, e.g. per-user signatures.
-        $secret = $JWT->getUnverifiedClaims()['uid'];
-        $JWT->verify(Algorithm::HMAC_SHA_256(), $secret);
-        $claims = $JWT->getClaims();
-        $this->assertEquals(['uid' => 'secret'], $claims);
-    } // testVerifyAfterDecode
-
-    /**
-     * @covers ::verify
-     * @expectedException Firehed\JWT\InvalidSignatureException
-     */
-    public function testVerifyThrowsWhenInitialDecodeWasNotVerified() {
-        $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'.
-            'eyJ1aWQiOiJzZWNyZXQifQ.'.
-            'thisisnotvalid';
-        $JWT = JWT::decode($vector);
-        // The claims in the vector provide the secret. This is to simulate the
-        // situation where a value in the claim would be used to look up the
-        // secret used to sign it, e.g. per-user signatures.
-        $secret = $JWT->getUnverifiedClaims()['uid'];
-        $JWT->verify(Algorithm::HMAC_SHA_256(), $secret);
-    }
-
-    /**
-     * @covers ::verify
-     * @expectedException Firehed\JWT\InvalidSignatureException
      */
     public function testModifiedAlgorithmTriggersInvalidSignature() {
         $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'.
@@ -253,7 +174,11 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
         // dervied from the key id. The provided, tampered-with token is signed
         // with HS256, although the secret is actually valid (indicitave of the
         // RSxxx swap
-        JWT::decode($vector, Algorithm::HMAC_SHA_512(), 'secret');
+        $keys = $this->getKeyContainer()
+            ->setDefaultKey('HS512');
+        $jwt = JWT::fromEncoded($vector, $keys);
+        $this->expectException(InvalidSignatureException::class);
+        $jwt->getClaims();
     } // testModifiedAlgorithmTriggersInvalidSignature
 
     /**
@@ -264,51 +189,82 @@ class JWTTest extends \PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('Firehed\JWT\JWT', $jwt, 'Construct failed');
     } // testConstruct
 
+    /**
+     * @covers ::setKeys
+     */
+    public function testSetKeysReturnsthis() {
+        $jwt = new JWT([]);
+        $this->assertSame($jwt,
+            $jwt->setKeys($this->getKeyContainer()),
+            'setKeys did not return $this');
+    }
+
     public function vectors() {
         // [
         //  encoded JWT,
-        //  algorithm,
         //  claims,
-        //  key,
+        //  KeyContainer,
         //  should be signed
         // ]
+        $kc = function(Algorithm $a, Secret $s) {
+            return (new KeyContainer())
+                ->addKey(1, $a, $s);
+        };
         return [
             [
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OTAs'.
-                'Im5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.eoaDVGTClRdfxUZXiP'.
-                's3f8FmJDkDE_VCQFXqKxpLsts',
-                Algorithm::HMAC_SHA_256(),
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MX0.'.
+                    'eyJzdWIiOjEyMzQ1Njc4OTAsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.'.
+                    'W1fAsUaR4A6V33l7x2e_AfV0lUMzmPVO_TLqOsixrIA',
                 ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
-                'secret',
+                $kc(Algorithm::HMAC_SHA_256(), new Secret('secret')),
                 true,
             ],
             [
-                'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OTAsI'.
-                'm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.fSCfxDB4cFVvzd6IqiNT'.
-                'uItTYiv-tAp5u5XplJWRDBGNF1rgGn1gyYK9LuHobWWpwqCzI7pEHDlyrbNHaQ'.
-                'Jmqg',
-                Algorithm::HMAC_SHA_512(),
+                'eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCIsImtpZCI6MX0.'.
+                    'eyJmb28iOiJiYXIifQ.'.
+                    '-a8BUkkRJZA0n4-o5fo3i2nN84_hp4wSelj4mWXmKbTI80cZAWsr-OkQqApZKAp4',
+                ['foo' => 'bar'],
+                $kc(Algorithm::HMAC_SHA_384(), new Secret('secret')),
+                true,
+
+            ],
+            [
+                'eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCIsImtpZCI6MX0.'.
+                    'eyJzdWIiOjEyMzQ1Njc4OTAsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.'.
+                    '9uDKkUhtLLsOUYzGmuUukxyn30qwDvkrtttSDri5DjeqBy6uuGsxkZuzqTLOR-r8xltGzaopJqGSQuL4Xg9q7w',
                 ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
-                'secret',
+                $kc(Algorithm::HMAC_SHA_512(), new Secret('secret')),
                 true,
             ],
             [
-                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1cmwiOiJodHRwOi8vZXhhb'.
-                'XBsZS5jb20ifQ.yEJmrAmC_Tr_lVOV5C0yAyK__omFr9J8BM_nulPpGOA',
-                Algorithm::HMAC_SHA_256(),
+                'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6MX0.'.
+                    'eyJ1cmwiOiJodHRwOi8vZXhhbXBsZS5jb20ifQ.'.
+                    'TTzMKdmqJqMt93E7CTFsLiDKh0LF9hyt69fOBAS7K1M',
                 ['url' => 'http://example.com'],
-                'secret',
+                $kc(Algorithm::HMAC_SHA_256(), new Secret('secret')),
                 true,
             ],
             [
-                'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJ1cmwiOiJodHRwOi8vZXhhbX'.
-                'BsZS5jb20ifQ.',
-                Algorithm::NONE(),
+                'eyJhbGciOiJub25lIiwidHlwIjoiSldUIiwia2lkIjoxfQ.'.
+                    'eyJ1cmwiOiJodHRwOi8vZXhhbXBsZS5jb20ifQ.'.
+                    '',
                 ['url' => 'http://example.com'],
-                '',
+                $kc(Algorithm::NONE(), new Secret('')),
                 false,
             ],
         ];
     } // vectors
+
+    private function getKeyContainer(): KeyContainer {
+        return (new KeyContainer())
+            ->addKey(1, Algorithm::HMAC_SHA_256(), new Secret('secret'))
+            ->addKey(2, Algorithm::HMAC_SHA_384(), new Secret('secret'))
+            ->addKey(3, Algorithm::HMAC_SHA_512(), new Secret('secret'))
+            ->addKey('HS256', Algorithm::HMAC_SHA_256(), new Secret('secret'))
+            ->addKey('HS384', Algorithm::HMAC_SHA_384(), new Secret('secret'))
+            ->addKey('HS512', Algorithm::HMAC_SHA_512(), new Secret('secret'))
+            ->addKey('none', Algorithm::NONE(), new Secret(''))
+            ->setDefaultKey(1);
+    }
 
 }

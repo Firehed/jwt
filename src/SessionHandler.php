@@ -13,7 +13,7 @@ class SessionHandler implements SessionHandlerInterface
     const DEFAULT_COOKIE = 'jwt_sid';
 
     private $cookie = self::DEFAULT_COOKIE;
-    private $secrets = [];
+    private $secrets;
     private $writer = 'setcookie';
 
     /**
@@ -24,43 +24,8 @@ class SessionHandler implements SessionHandlerInterface
      *
      * @param [ key id  => ['alg' => Algorithm, 'secret' => string]]
      */
-    public function __construct(array $secrets) {
-        array_map([$this,'verifySecret'], $secrets);
+    public function __construct(KeyContainer $secrets) {
         $this->secrets = $secrets;
-    }
-
-    /**
-     * Validates that each of the secrets provided in the constructor have
-     * appropriate signing/verifying data.
-     *
-     * @param array
-     * @return void
-     * @throws InvalidArgumentException if the formatting is wrong
-     */
-    private function verifySecret(array $secret) {
-        if (empty($secret['alg']) || empty($secret['secret'])) {
-            throw new InvalidArgumentException(
-                'Each element must be an array containing "algorithm" and "secret"');
-        }
-        if (!$secret['alg'] instanceof Algorithm) {
-            throw new InvalidArgumentException(sprintf(
-                "Algorithm must be an instance of %s, %s given",
-                Algorithm::class,
-                is_object($secret['alg']) ? get_class($secret['alg'])
-                                          : gettype($secret['alg'])
-            ));
-        }
-        if ($secret['alg']->is(Algorithm::NONE())) {
-            throw new InvalidArgumentException(
-                'Algorithm cannot be "none"');
-        }
-        if (!is_string($secret['secret'])) {
-            throw new InvalidArgumentException(sprintf(
-                'Secret must be a string, %s given',
-                is_object($secret['secret']) ? get_class($secret['secret'])
-                                             : gettype($secret['secret'])
-            ));
-        }
     }
 
     /**
@@ -107,15 +72,12 @@ class SessionHandler implements SessionHandlerInterface
             return '';
         }
         $encoded = $_COOKIE[$this->cookie];
-        $jwt = JWT::decode($encoded);
-        list($alg, $key) = $this->getSecret($jwt->getKeyID());
-        if (!$alg) {
-            return '';
-        }
         try {
-            $jwt->verify($alg, $key);
+            $jwt = JWT::fromEncoded($encoded, $this->secrets);
             $claims = $jwt->getClaims();
             return $claims[self::CLAIM];
+        } catch (KeyNotFoundException $e) {
+            return '';
         } catch (InvalidSignatureException $e) {
             return '';
         }
@@ -131,7 +93,6 @@ class SessionHandler implements SessionHandlerInterface
      * @throws JWTException if the data cannot be signed
      */
     public function write($session_id, $session_data) {
-        list($alg, $key, $keyID) = $this->getSecret();
         $data = [
             'jti' => $session_id,
 //            future considerations:
@@ -140,9 +101,8 @@ class SessionHandler implements SessionHandlerInterface
             self::CLAIM => $session_data,
         ];
         $jwt = (new JWT($data))
-            ->setAlgorithm($alg)
-            ->setKeyID($keyID);
-        $data = $jwt->encode($key);
+            ->setKeys($this->secrets);
+        $data = $jwt->getEncoded();
         if (strlen($data) >= 4096) {
             throw new OverflowException(
                 "Too much data in session to use JWT driver");
@@ -156,26 +116,6 @@ class SessionHandler implements SessionHandlerInterface
             $params['secure'],
             $params['httponly']);
         return true;
-    }
-
-    /**
-     * Gets the encryption info for the given key ID, defaulting to the most
-     * recent ID
-     *
-     * @return array algorithm, secret, key id
-     */
-    private function getSecret($keyId = null) {
-        // If a key ID is not specified (i.e. on write), use the most recent
-        // one
-        if (null === $keyId) {
-            end($this->secrets);
-            $keyId = key($this->secrets);
-        }
-        if (!array_key_exists($keyId, $this->secrets)) {
-            return [null,null,null];
-        }
-        $data = $this->secrets[$keyId];
-        return [$data['alg'], $data['secret'], $keyId];
     }
 
     /**

@@ -4,6 +4,7 @@ namespace Firehed\JWT;
 
 use InvalidArgumentException;
 use OverflowException;
+use Firehed\Security\Secret;
 
 
 /**
@@ -18,14 +19,12 @@ class SessionHandlerTest extends \PHPUnit_Framework_TestCase
      * Stores the data that would have gone to `setcookie`
      */
     private $cookieData = '';
+    private $container;
 
     public function setUp() {
-        $this->handler = new SessionHandler([
-            1 => [
-                'alg' => Algorithm::HMAC_SHA_256(),
-                'secret' => 't0p $3cr37',
-            ]
-        ]);
+        $this->container = (new KeyContainer())
+            ->addKey(1, Algorithm::HMAC_SHA_256(), new Secret('t0p $3cr37'));
+        $this->handler = new SessionHandler($this->container);
         $this->handler->setWriter([$this,'setCookie']);
     }
 
@@ -55,15 +54,6 @@ class SessionHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testDestroy() {
         $this->assertTrue($this->handler->destroy('session_id'));
-    }
-
-    /**
-     * @covers ::__construct
-     * @dataProvider badSecrets
-     */
-    public function testBadSecrets(array $secrets) {
-        $this->expectException(InvalidArgumentException::class);
-        new SessionHandler($secrets);
     }
 
     /**
@@ -118,8 +108,7 @@ class SessionHandlerTest extends \PHPUnit_Framework_TestCase
      */
     public function testWrite() {
         $this->handler->write('sid', 'somedata');
-        $jwt = JWT::decode($this->cookieData);
-        $jwt->verify(Algorithm::HMAC_SHA_256(), 't0p $3cr37');
+        $jwt = JWT::fromEncoded($this->cookieData, $this->container);
 
         $claims = $jwt->getClaims();
         $this->assertSame('somedata', $claims[SessionHandler::CLAIM],
@@ -132,36 +121,6 @@ class SessionHandlerTest extends \PHPUnit_Framework_TestCase
     public function testWriteTooMuchThrows() {
         $this->expectException(OverflowException::class);
         $this->handler->write('sid', str_repeat('asdf', 1024));
-    }
-
-    // -( DataProviders )------------------------------------------------------
-
-    public function badSecrets() {
-        return [
-            [[1 => []]],
-            [[1 => [
-                'secret' => 3,
-                'alg' => Algorithm::HMAC_SHA_256(),
-            ]]],
-            [[1 => [
-                'secret' => 'good secret',
-                'alg' => 'sha256',
-            ]]],
-            [[1 => [
-                'secret' => 'good secret',
-                'alg' => Algorithm::NONE(),
-            ]]],
-            [[
-                1 => [
-                    'secret' => 'good secret',
-                    'alg' => Algorithm::HMAC_SHA_256(),
-                ],
-                2 => [
-                    'secret' => 'good secret',
-                    'alg' => Algorithm::NONE(),
-                ]
-            ]],
-        ];
     }
 
     // -( Helpers )------------------------------------------------------------
