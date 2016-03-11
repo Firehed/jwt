@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "d69b2b8654d489fe02ccc8c5131d5f8b",
-    "content-hash": "0e55f408d4e968b651b1fa7bd0cfc066",
+    "hash": "285192f76d399be9dd28af1ee63a80f6",
+    "content-hash": "52e1e05ef3669aad30c94d882bdf562e",
     "packages": [
         {
             "name": "firehed/arctools",
@@ -85,21 +85,24 @@
         },
         {
             "name": "firehed/security",
-            "version": "dev-master",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Firehed/Security.git",
-                "reference": "6ae1d8b7c06a2515b610d801c81b0c220b8c6202"
+                "reference": "cb4add11539749a2b7b0da5fa0559a5ec1dc66ba"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Firehed/Security/zipball/6ae1d8b7c06a2515b610d801c81b0c220b8c6202",
-                "reference": "6ae1d8b7c06a2515b610d801c81b0c220b8c6202",
+                "url": "https://api.github.com/repos/Firehed/Security/zipball/cb4add11539749a2b7b0da5fa0559a5ec1dc66ba",
+                "reference": "cb4add11539749a2b7b0da5fa0559a5ec1dc66ba",
                 "shasum": ""
+            },
+            "require": {
+                "php": ">=7"
             },
             "require-dev": {
                 "firehed/arctools": "^1",
-                "phpunit/phpunit": "~4"
+                "phpunit/phpunit": "~5"
             },
             "type": "library",
             "autoload": {
@@ -108,7 +111,11 @@
                         "src/",
                         "tests/"
                     ]
-                }
+                },
+                "files": [
+                    "src/HOTP.php",
+                    "src/TOTP.php"
+                ]
             },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
@@ -121,7 +128,7 @@
                 }
             ],
             "description": "Security tools for PHP",
-            "time": "2015-08-20 18:59:28"
+            "time": "2016-03-11 00:59:18"
         }
     ],
     "packages-dev": [
@@ -1223,8 +1230,7 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "firehed/arctools": 20,
-        "firehed/common": 20,
-        "firehed/security": 20
+        "firehed/common": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

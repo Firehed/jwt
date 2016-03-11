@@ -10,13 +10,13 @@
     ],
     "autoload": {
         "psr-4": {
-            "Firehed\\JWT\\": "src/"
+            "Firehed\\JWT\\": ["src/", "tests/"]
         }
     },
     "require": {
         "firehed/arctools": "*@dev",
         "firehed/common": "*@dev",
-        "firehed/security": "*@dev",
+        "firehed/security": "^1.0",
         "php": ">=7.0"
     },
     "require-dev": {
