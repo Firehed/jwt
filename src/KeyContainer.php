@@ -29,7 +29,7 @@ class KeyContainer
     public function getKey($id = null): array {
         // Prefer explicitly requested > explicit default > most recently added
         $id = $id ?? $this->default ?? $this->last;
-        if (!array_key_exists($id, $this->keys)) {
+        if ($id === null || !array_key_exists($id, $this->keys)) {
             throw new KeyNotFoundException(
                 "No key found with id '$id'");
         }
