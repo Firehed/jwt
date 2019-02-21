@@ -7,10 +7,18 @@ use Firehed\Security\Secret;
 class KeyContainer
 {
 
+    /** @var array */
     private $keys;
+
+    /** @var int|string */
     private $default;
+
+    /** @var int|string */
     private $last;
 
+    /**
+     * @param mixed $id
+     */
     public function addKey($id, Algorithm $alg, Secret $secret): self
     {
         $this->keys[$id] = [$alg, $secret];
@@ -18,6 +26,9 @@ class KeyContainer
         return $this;
     }
 
+    /**
+     * @param mixed $id
+     */
     public function setDefaultKey($id): self
     {
         $this->default = $id;
@@ -25,7 +36,7 @@ class KeyContainer
     }
 
     /**
-     * @param mixed Key ID
+     * @param mixed $id Key ID
      * @return array [Algorithm, Secret, id]
      */
     public function getKey($id = null): array

@@ -2,22 +2,31 @@
 
 namespace Firehed\JWT;
 
-use Exception;
 use BadMethodCallException;
+use Exception;
 use Firehed\Security\Secret;
+use RuntimeException;
 
 class JWT
 {
 
+    /** @var bool */
     private $is_verified = false;
+
+    /** @var KeyContainer */
     private $keys;
 
     // Actual JWT components
+    /** @var array<string, mixed> */
     private $headers = [
         'alg' => null,
         'typ' => 'JWT',
     ];
+
+    /** @var array<mixed> */
     private $claims = [];
+
+    /** @var string */
     private $signature;
 
     public function __construct(array $claims = [])
@@ -26,9 +35,10 @@ class JWT
         $this->is_verified = true;
     } // __construct
 
+    /** @param int|string $keyId */
     public function getEncoded($keyId = null): string
     {
-        if (!$this->keys) {
+        if ($this->keys === null) {
             throw new BadMethodCallException(
                 'No keys have been provided to this JWT. Call setKeys() '.
                 'before using getEncoded().'
@@ -93,6 +103,7 @@ class JWT
         return $token;
     }
 
+    /** @return void */
     private function authenticate()
     {
         $this->is_verified = false;
@@ -108,12 +119,13 @@ class JWT
         }
     }
 
+    /** @return int|string|null */
     public function getKeyID()
     {
         return $this->headers['kid'] ?? null;
     } // getKeyID
 
-    private function sign(Secret $key)
+    private function sign(Secret $key): string
     {
         $alg = $this->headers['alg']; // DEFAULT?
 
@@ -141,6 +153,7 @@ class JWT
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     } // sign
 
+    /** @return void */
     private function enforceExpirations()
     {
         if (isset($this->claims['exp'])) {
@@ -157,9 +170,12 @@ class JWT
         }
     } // enforceExpirations
 
-    private static function b64decode($base64_str)
+    private static function b64decode(string $base64_str): array
     {
-        $json = base64_decode(strtr($base64_str, '-_', '+/'));
+        $json = base64_decode(strtr($base64_str, '-_', '+/'), true);
+        if ($json === false) {
+            throw new RuntimeException('String could not be decoded');
+        }
         $decoded = json_decode($json, true);
         if (\JSON_ERROR_NONE !== json_last_error()) {
             throw new InvalidFormatException("JSON was invalid");
@@ -167,9 +183,12 @@ class JWT
         return $decoded;
     } // b64decode
 
-    private static function b64encode($data)
+    private static function b64encode(array $data): string
     {
         $json = json_encode($data, \JSON_UNESCAPED_SLASHES);
+        if ($json === false) {
+            throw new RuntimeException('JSON encoding failed');
+        }
         return rtrim(strtr(base64_encode($json), '+/', '-_'), '=');
     } // b64encode
 }

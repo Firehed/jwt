@@ -12,8 +12,13 @@ class SessionHandler implements SessionHandlerInterface
     const CLAIM = 'sd';
     const DEFAULT_COOKIE = 'jwt_sid';
 
+    /** @var string */
     private $cookie = self::DEFAULT_COOKIE;
+
+    /** @var KeyContainer */
     private $secrets;
+
+    /** @var callable */
     private $writer = 'setcookie';
 
     /**
@@ -21,8 +26,6 @@ class SessionHandler implements SessionHandlerInterface
      *
      * Note that Algorithm::NONE is explicitly blocked, since this would
      * produce an unsigned JWT allowing users to modify their own session data.
-     *
-     * @param [ key id  => ['alg' => Algorithm, 'secret' => string]]
      */
     public function __construct(KeyContainer $secrets)
     {
@@ -38,6 +41,10 @@ class SessionHandler implements SessionHandlerInterface
         return true;
     }
 
+    /**
+     * @param string $session_id
+     * @return bool
+     */
     public function destroy($session_id)
     {
         ($this->writer)($this->cookie, '', time()-86400); // Expire yesterday
@@ -46,6 +53,7 @@ class SessionHandler implements SessionHandlerInterface
 
     /**
      * No-op, interface adherence only
+     * @param int $maxlifetime
      * @return bool true, always
      */
     public function gc($maxlifetime)
@@ -55,6 +63,8 @@ class SessionHandler implements SessionHandlerInterface
 
     /**
      * No-op, interface adherence only
+     * @param string $save_path
+     * @param string $name
      * @return bool true, always
      */
     public function open($save_path, $name)
@@ -67,14 +77,14 @@ class SessionHandler implements SessionHandlerInterface
      * returns the data to be natively unserialized into the $_SESSION
      * superglobal
      *
-     * @param session_id (unused)
+     * @param string $session_id (unused)
      * @return string the serialized session string
      * @throws JWTException if JWT processing fails, tampering is detected, etc
      */
     public function read($session_id)
     {
         // session_id is intentionally ignored
-        if (empty($_COOKIE[$this->cookie])) {
+        if (!array_key_exists($this->cookie, $_COOKIE)) {
             return '';
         }
         $encoded = $_COOKIE[$this->cookie];
@@ -92,8 +102,8 @@ class SessionHandler implements SessionHandlerInterface
     /**
      * Writes the session data to a cookie containing a signed JWT
      *
-     * @param session_id (unused)
-     * @param session_data the serialized session data
+     * @param string $session_id (unused)
+     * @param string $session_data the serialized session data
      * @return bool true if the cookie header was set
      * @throws OverflowException if there is too much session data
      * @throws JWTException if the data cannot be signed
@@ -132,6 +142,8 @@ class SessionHandler implements SessionHandlerInterface
      * This exists pretty much entirely to test that `setcookie` is called when
      * and how it should be; there's no reason to call this during normal use.
      *
+     * @internal
+     * @return $this
      * @codeCoverageIgnoreStart
      */
     public function setWriter(callable $writer)
