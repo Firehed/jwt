@@ -10,7 +10,7 @@ use Firehed\Security\Secret;
  * @covers ::<protected>
  * @covers ::<private>
  */
-class KeyContainerTest extends \PHPUnit_Framework_TestCase
+class KeyContainerTest extends \PHPUnit\Framework\TestCase
 {
 
     public function testConstruct() {

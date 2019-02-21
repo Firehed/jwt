@@ -12,7 +12,7 @@ use Firehed\Security\Secret;
  * @covers ::<protected>
  * @covers ::<private>
  */
-class SessionHandlerTest extends \PHPUnit_Framework_TestCase
+class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 {
 
     /**

@@ -9,7 +9,7 @@ use BadMethodCallException;
  * @covers ::<protected>
  * @covers ::<private>
  */
-class JWTTest extends \PHPUnit_Framework_TestCase {
+class JWTTest extends \PHPUnit\Framework\TestCase {
 
     /**
      * @covers ::fromEncoded
