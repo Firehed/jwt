@@ -21,7 +21,6 @@ use Firehed\Common\Enum;
  */
 class Algorithm extends Enum
 {
-
     const NONE = 'none';
     const HMAC_SHA_256 = 'HS256';
     const HMAC_SHA_384 = 'HS384';
