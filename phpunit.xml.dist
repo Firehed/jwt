@@ -4,7 +4,7 @@
          bootstrap="vendor/autoload.php"
          forceCoversAnnotation="true"
          backupGlobals="true"
-         beStrictAboutCoversAnnotation="true"
+         beStrictAboutCoversAnnotation="false"
          beStrictAboutOutputDuringTests="true"
          beStrictAboutTodoAnnotatedTests="true"
          verbose="true">
