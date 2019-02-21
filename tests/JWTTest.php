@@ -17,11 +17,11 @@ class JWTTest extends \PHPUnit\Framework\TestCase
      * @covers ::fromEncoded
      * @covers ::getClaims
      * @dataProvider vectors
-     * */
+     * @return void
+     */
     public function testDecode(string $vector, array $exp_claims, KeyContainer $keys)
     {
         $JWT = JWT::fromEncoded($vector, $keys);
-        $this->assertInstanceOf('Firehed\JWT\JWT', $JWT);
         $this->assertSame(
             $exp_claims,
             $JWT->getUnverifiedClaims(),
@@ -31,6 +31,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getClaims
+     * @return void
      */
     public function testGetClaimsThrowsWithBadSignature()
     {
@@ -43,6 +44,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getUnverifiedClaims
+     * @return void
      */
     public function testDecodeAllowsInvalidSignatureWhenExplicitlyConfigured()
     {
@@ -63,6 +65,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::getEncoded
      * @dataProvider vectors
+     * @return void
      */
     public function testEncode(string $vector, array $claims, KeyContainer $keys)
     {
@@ -74,6 +77,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @expectedException Firehed\JWT\TokenNotYetValidException
+     * @return void
      */
     public function testEnforceNBF()
     {
@@ -86,6 +90,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @expectedException Firehed\JWT\TokenExpiredException
+     * @return void
      */
     public function testEnforceEXP()
     {
@@ -97,6 +102,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getEncoded
+     * @return void
      */
     public function testSpecifyingEncodingKeyProducesCorrectOutput()
     {
@@ -119,6 +125,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
      * Ensures that the key ID header value takes precedence when multiple keys
      * are made available to the decoding method, and the data remains correct.
      * @covers ::getKeyID
+     * @return void
      */
     public function testGetKeyIDFromDecodedInput()
     {
@@ -145,6 +152,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getEncoded
+     * @return void
      */
     public function testNotSettingKeysFails()
     {
@@ -156,6 +164,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::__construct
      * @covers ::getClaims
+     * @return void
      */
     public function testNewTokenAllowsAccessToClaims()
     {
@@ -171,6 +180,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::fromEncoded
      * @expectedException Firehed\JWT\InvalidFormatException
+     * @return void
      */
     public function testDecodeStringWithNoPeriods()
     {
@@ -180,6 +190,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::fromEncoded
      * @expectedException Firehed\JWT\InvalidFormatException
+     * @return void
      */
     public function testDecodeInvalidJSON()
     {
@@ -190,6 +201,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::getClaims
      * @expectedException BadMethodCallException
+     * @return void
      */
     public function testNoneAlgorithmRequiresGetUnverifedClaims()
     {
@@ -203,6 +215,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getClaims
+     * @return void
      */
     public function testModifiedAlgorithmTriggersInvalidSignature()
     {
@@ -222,15 +235,17 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::__construct
+     * @doesNotPerformAssertions
+     * @return void
      */
     public function testConstruct()
     {
         $jwt = new JWT(['foo' => 'bar']);
-        $this->assertInstanceOf('Firehed\JWT\JWT', $jwt, 'Construct failed');
     } // testConstruct
 
     /**
      * @covers ::setKeys
+     * @return void
      */
     public function testSetKeysReturnsthis()
     {
@@ -242,7 +257,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function vectors()
+    public function vectors(): array
     {
         // [
         //  encoded JWT,

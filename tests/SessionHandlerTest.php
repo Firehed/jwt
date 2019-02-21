@@ -2,9 +2,10 @@
 
 namespace Firehed\JWT;
 
+use Firehed\Security\Secret;
 use InvalidArgumentException;
 use OverflowException;
-use Firehed\Security\Secret;
+use SessionHandlerInterface;
 
 /**
  * @coversDefaultClass Firehed\JWT\SessionHandler
@@ -16,20 +17,30 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * Stores the data that would have gone to `setcookie`
+     * @var string
      */
     private $cookieData = '';
+
+    /** @var KeyContainer */
     private $container;
 
+    /** @var SessionHandlerInterface */
+    private $handler;
+
+    /**
+     * @return void
+     */
     public function setUp()
     {
         $this->container = (new KeyContainer())
             ->addKey(1, Algorithm::HMAC_SHA_256(), new Secret('t0p $3cr37'));
         $this->handler = new SessionHandler($this->container);
-        $this->handler->setWriter([$this,'setCookie']);
+        $this->handler->setWriter([$this, 'setCookie']);
     }
 
     /**
      * @covers ::open
+     * @return void
      */
     public function testOpen()
     {
@@ -38,6 +49,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::close
+     * @return void
      */
     public function testClose()
     {
@@ -46,6 +58,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::gc
+     * @return void
      */
     public function testGC()
     {
@@ -54,6 +67,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::destroy
+     * @return void
      */
     public function testDestroy()
     {
@@ -62,6 +76,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::read
+     * @return void
      */
     public function testRead()
     {
@@ -79,6 +94,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::read
+     * @return void
      */
     public function testReadWithForgedSignature()
     {
@@ -95,6 +111,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::read
+     * @return void
      */
     public function testReadWithUnexpectedKeyID()
     {
@@ -111,6 +128,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::read
+     * @return void
      */
     public function testReadWithEmptyCookie()
     {
@@ -125,6 +143,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::write
+     * @return void
      */
     public function testWrite()
     {
@@ -141,6 +160,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::write
+     * @return void
      */
     public function testWriteTooMuchThrows()
     {
@@ -153,8 +173,16 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
     /**
      * Injected replacement callback for direct `setCookie` function
      */
-    public function setCookie(...$args)
-    {
-        $this->cookieData = $args[1];
+    public function setCookie(
+        string $name,
+        string $value = '',
+        int $expires = 0,
+        string $path = '',
+        string $domain = '',
+        bool $secure = false,
+        bool $httponly = false
+    ): bool {
+        $this->cookieData = $value;
+        return true;
     }
 }

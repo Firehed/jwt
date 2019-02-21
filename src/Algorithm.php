@@ -4,6 +4,21 @@ namespace Firehed\JWT;
 
 use Firehed\Common\Enum;
 
+/**
+ * @method static Algorithm NONE()
+ * @method static Algorithm HMAC_SHA_256()
+ * @method static Algorithm HMAC_SHA_384()
+ * @method static Algorithm HMAC_SHA_512()
+ * @method static Algorithm ECDSA_256()
+ * @method static Algorithm ECDSA_384()
+ * @method static Algorithm ECDSA_512()
+ * @method static Algorithm PKCS_256()
+ * @method static Algorithm PKCS_384()
+ * @method static Algorithm PKCS_512()
+ * @method static Algorithm PSS_256()
+ * @method static Algorithm PSS_384()
+ * @method static Algorithm PSS_512()
+ */
 class Algorithm extends Enum
 {
 

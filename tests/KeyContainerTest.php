@@ -13,6 +13,9 @@ use Firehed\Security\Secret;
 class KeyContainerTest extends \PHPUnit\Framework\TestCase
 {
 
+    /**
+     * @return void
+     */
     public function testConstruct()
     {
         $this->assertInstanceOf(
@@ -23,6 +26,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::setDefaultKey
+     * @return void
      */
     public function testSetDefaultKeyReturnsThis()
     {
@@ -36,6 +40,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::addKey
+     * @return void
      */
     public function testAddKeyReturnsThis()
     {
@@ -49,6 +54,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getKey
+     * @return void
      */
     public function testGetKeyReturnsMatchedID()
     {
@@ -61,6 +67,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getKey
+     * @return void
      */
     public function testGetKeyReturnsExplicitDefault()
     {
@@ -73,6 +80,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getKey
+     * @return void
      */
     public function testGetKeyReturnsMostRecentEntryWithNoDefault()
     {
@@ -85,6 +93,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getKey
+     * @return void
      */
     public function testGetKeyThrowsWhenNoKeyMatchesExplicit()
     {
@@ -95,6 +104,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getKey
+     * @return void
      */
     public function testGetKeyThrowsWhenNoKeyMatchesDefault()
     {
@@ -105,6 +115,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getKey
+     * @return void
      */
     public function testGetKeyThrowsWhenNoKeys()
     {
