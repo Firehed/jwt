@@ -2,4 +2,6 @@
 
 namespace Firehed\JWT;
 
-class TokenExpiredException extends JWTException {}
+class TokenExpiredException extends JWTException
+{
+}

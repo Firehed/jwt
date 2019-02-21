@@ -4,7 +4,8 @@ namespace Firehed\JWT;
 
 use Firehed\Common\Enum;
 
-class Algorithm extends Enum {
+class Algorithm extends Enum
+{
 
     const NONE = 'none';
     const HMAC_SHA_256 = 'HS256';
@@ -19,5 +20,4 @@ class Algorithm extends Enum {
     const PSS_256 = 'PS256';
     const PSS_384 = 'PS384';
     const PSS_512 = 'PS512';
-
 }

@@ -2,4 +2,6 @@
 
 namespace Firehed\JWT;
 
-class TokenNotYetValidException extends JWTException {}
+class TokenNotYetValidException extends JWTException
+{
+}

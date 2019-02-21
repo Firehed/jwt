@@ -2,4 +2,6 @@
 
 namespace Firehed\JWT;
 
-class InvalidSignatureException extends JWTException {}
+class InvalidSignatureException extends JWTException
+{
+}

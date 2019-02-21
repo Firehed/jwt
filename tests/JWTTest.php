@@ -1,6 +1,7 @@
 <?php
 
 namespace Firehed\JWT;
+
 use Firehed\Security\Secret;
 use BadMethodCallException;
 
@@ -9,24 +10,30 @@ use BadMethodCallException;
  * @covers ::<protected>
  * @covers ::<private>
  */
-class JWTTest extends \PHPUnit\Framework\TestCase {
+class JWTTest extends \PHPUnit\Framework\TestCase
+{
 
     /**
      * @covers ::fromEncoded
      * @covers ::getClaims
      * @dataProvider vectors
      * */
-    public function testDecode(string $vector, array $exp_claims, KeyContainer $keys) {
+    public function testDecode(string $vector, array $exp_claims, KeyContainer $keys)
+    {
         $JWT = JWT::fromEncoded($vector, $keys);
         $this->assertInstanceOf('Firehed\JWT\JWT', $JWT);
-        $this->assertSame($exp_claims, $JWT->getUnverifiedClaims(),
-            'Claims did not match');
+        $this->assertSame(
+            $exp_claims,
+            $JWT->getUnverifiedClaims(),
+            'Claims did not match'
+        );
     } // testDecode
 
     /**
      * @covers ::getClaims
      */
-    public function testGetClaimsThrowsWithBadSignature() {
+    public function testGetClaimsThrowsWithBadSignature()
+    {
         $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OT'.
             'AsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.thisisnotvalid';
         $jwt = JWT::fromEncoded($vector, $this->getKeyContainer());
@@ -37,11 +44,14 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
     /**
      * @covers ::getUnverifiedClaims
      */
-    public function testDecodeAllowsInvalidSignatureWhenExplicitlyConfigured() {
+    public function testDecodeAllowsInvalidSignatureWhenExplicitlyConfigured()
+    {
         $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OT'.
             'AsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.thisisnotvalid';
-        $JWT = JWT::fromEncoded($vector,
-            $this->getKeyContainer()->setDefaultKey('none'));
+        $JWT = JWT::fromEncoded(
+            $vector,
+            $this->getKeyContainer()->setDefaultKey('none')
+        );
         $expected = [
             "sub" => 1234567890,
             "name" => "John Doe",
@@ -54,7 +64,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
      * @covers ::getEncoded
      * @dataProvider vectors
      */
-    public function testEncode(string $vector, array $claims, KeyContainer $keys) {
+    public function testEncode(string $vector, array $claims, KeyContainer $keys)
+    {
         $tok = new JWT($claims);
         $tok->setKeys($keys);
         $out = $tok->getEncoded();
@@ -64,24 +75,31 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
     /**
      * @expectedException Firehed\JWT\TokenNotYetValidException
      */
-    public function testEnforceNBF() {
-        JWT::fromEncoded('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.'.
+    public function testEnforceNBF()
+    {
+        JWT::fromEncoded(
+            'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.'.
             'eyJuYmYiOjk5OTk5OTk5OTk5OX0.',
-            $this->getKeyContainer()->setDefaultKey('none'));
+            $this->getKeyContainer()->setDefaultKey('none')
+        );
     } // testEnforceNBF
 
     /**
      * @expectedException Firehed\JWT\TokenExpiredException
      */
-    public function testEnforceEXP() {
-        JWT::fromEncoded('eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOjF9.',
-            $this->getKeyContainer()->setDefaultKey('none'));
+    public function testEnforceEXP()
+    {
+        JWT::fromEncoded(
+            'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOjF9.',
+            $this->getKeyContainer()->setDefaultKey('none')
+        );
     } // testEnforceEXP
 
     /**
      * @covers ::getEncoded
      */
-    public function testSpecifyingEncodingKeyProducesCorrectOutput() {
+    public function testSpecifyingEncodingKeyProducesCorrectOutput()
+    {
         $expected = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6M30.eyJ1c2VyI'.
             'joiRm9vIEJhciJ9.E2gekVU0lErEsIqIWSdG7-32yVhALHr_tZu5DFfWVjM';
         $keys = (new KeyContainer())
@@ -90,8 +108,11 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
             ->addKey(2, Algorithm::HMAC_SHA_512(), new Secret('yyy'));
         $jwt = new JWT(['user' => 'Foo Bar']);
         $jwt->setKeys($keys);
-        $this->assertSame($expected, $jwt->getEncoded(3),
-            'Encoded output did not match expected');
+        $this->assertSame(
+            $expected,
+            $jwt->getEncoded(3),
+            'Encoded output did not match expected'
+        );
     }
 
     /**
@@ -99,7 +120,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
      * are made available to the decoding method, and the data remains correct.
      * @covers ::getKeyID
      */
-    public function testGetKeyIDFromDecodedInput() {
+    public function testGetKeyIDFromDecodedInput()
+    {
         $data = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6M30.eyJ1c2VyIjoiR'.
             'm9vIEJhciJ9.E2gekVU0lErEsIqIWSdG7-32yVhALHr_tZu5DFfWVjM';
         $kc = (new KeyContainer())
@@ -108,17 +130,24 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
             ->addKey(4, Algorithm::HMAC_SHA_512(), new Secret('yyy'))
             ->setDefaultKey(2);
         $jwt = JWT::fromEncoded($data, $kc);
-        $this->assertSame(3, $jwt->getKeyID(),
-            '`kid` header was not retreived correctly');
+        $this->assertSame(
+            3,
+            $jwt->getKeyID(),
+            '`kid` header was not retreived correctly'
+        );
         // use key id 3 to determine secret
-        $this->assertSame(['user' => 'Foo Bar'], $jwt->getClaims(),
-            'getClaims was wrong after checking key id');
+        $this->assertSame(
+            ['user' => 'Foo Bar'],
+            $jwt->getClaims(),
+            'getClaims was wrong after checking key id'
+        );
     }
 
     /**
      * @covers ::getEncoded
      */
-    public function testNotSettingKeysFails() {
+    public function testNotSettingKeysFails()
+    {
         $tok = new JWT(['data' => true]);
         $this->expectException(BadMethodCallException::class);
         $tok->getEncoded();
@@ -128,18 +157,23 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
      * @covers ::__construct
      * @covers ::getClaims
      */
-    public function testNewTokenAllowsAccessToClaims() {
+    public function testNewTokenAllowsAccessToClaims()
+    {
         $data = ['data' => true];
         $tok = new JWT($data);
-        $this->assertEquals($data, $tok->getClaims(),
-            'getClaims did not return the provided data');
+        $this->assertEquals(
+            $data,
+            $tok->getClaims(),
+            'getClaims did not return the provided data'
+        );
     } // testNewTokenAllowsAccessToClaims
 
     /**
      * @covers ::fromEncoded
      * @expectedException Firehed\JWT\InvalidFormatException
      */
-    public function testDecodeStringWithNoPeriods() {
+    public function testDecodeStringWithNoPeriods()
+    {
         JWT::fromEncoded('asdfklj290iasdf', $this->getKeyContainer());
     } // testDecodeStringWithNoPeriods
 
@@ -147,7 +181,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
      * @covers ::fromEncoded
      * @expectedException Firehed\JWT\InvalidFormatException
      */
-    public function testDecodeInvalidJSON() {
+    public function testDecodeInvalidJSON()
+    {
         // test.test
         JWT::fromEncoded('dGVzdA.dGVzdA.', $this->getKeyContainer());
     } // testDecodeInvalidJSON
@@ -156,17 +191,21 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
      * @covers ::getClaims
      * @expectedException BadMethodCallException
      */
-    public function testNoneAlgorithmRequiresGetUnverifedClaims() {
+    public function testNoneAlgorithmRequiresGetUnverifedClaims()
+    {
         $vector = 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJmb28iOiJiYXIifQ.';
-        $jwt = JWT::fromEncoded($vector,
-            $this->getKeyContainer()->setDefaultKey('none'));
+        $jwt = JWT::fromEncoded(
+            $vector,
+            $this->getKeyContainer()->setDefaultKey('none')
+        );
         $jwt->getClaims();
     } // testNoneAlgorithmRequiresGetUnverifedClaims
 
     /**
      * @covers ::getClaims
      */
-    public function testModifiedAlgorithmTriggersInvalidSignature() {
+    public function testModifiedAlgorithmTriggersInvalidSignature()
+    {
         $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'.
             'eyJmb28iOiJiYXIifQ.'.
             'dtxWM6MIcgoeMgH87tGvsNDY6cHWL6MGW4LeYvnm1JA';
@@ -184,7 +223,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
     /**
      * @covers ::__construct
      */
-    public function testConstruct() {
+    public function testConstruct()
+    {
         $jwt = new JWT(['foo' => 'bar']);
         $this->assertInstanceOf('Firehed\JWT\JWT', $jwt, 'Construct failed');
     } // testConstruct
@@ -192,21 +232,25 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
     /**
      * @covers ::setKeys
      */
-    public function testSetKeysReturnsthis() {
+    public function testSetKeysReturnsthis()
+    {
         $jwt = new JWT([]);
-        $this->assertSame($jwt,
+        $this->assertSame(
+            $jwt,
             $jwt->setKeys($this->getKeyContainer()),
-            'setKeys did not return $this');
+            'setKeys did not return $this'
+        );
     }
 
-    public function vectors() {
+    public function vectors()
+    {
         // [
         //  encoded JWT,
         //  claims,
         //  KeyContainer,
         //  should be signed
         // ]
-        $kc = function(Algorithm $a, Secret $s) {
+        $kc = function (Algorithm $a, Secret $s) {
             return (new KeyContainer())
                 ->addKey(1, $a, $s);
         };
@@ -255,7 +299,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
         ];
     } // vectors
 
-    private function getKeyContainer(): KeyContainer {
+    private function getKeyContainer(): KeyContainer
+    {
         return (new KeyContainer())
             ->addKey(1, Algorithm::HMAC_SHA_256(), new Secret('secret'))
             ->addKey(2, Algorithm::HMAC_SHA_384(), new Secret('secret'))
@@ -266,5 +311,4 @@ class JWTTest extends \PHPUnit\Framework\TestCase {
             ->addKey('none', Algorithm::NONE(), new Secret(''))
             ->setDefaultKey(1);
     }
-
 }

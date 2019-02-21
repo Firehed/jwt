@@ -24,7 +24,8 @@ class SessionHandler implements SessionHandlerInterface
      *
      * @param [ key id  => ['alg' => Algorithm, 'secret' => string]]
      */
-    public function __construct(KeyContainer $secrets) {
+    public function __construct(KeyContainer $secrets)
+    {
         $this->secrets = $secrets;
     }
 
@@ -32,11 +33,13 @@ class SessionHandler implements SessionHandlerInterface
      * No-op, interface adherence only
      * @return bool true, always
      */
-    public function close() {
+    public function close()
+    {
         return true;
     }
 
-    public function destroy($session_id) {
+    public function destroy($session_id)
+    {
         ($this->writer)($this->cookie, '', time()-86400); // Expire yesterday
         return true;
     }
@@ -45,7 +48,8 @@ class SessionHandler implements SessionHandlerInterface
      * No-op, interface adherence only
      * @return bool true, always
      */
-    public function gc($maxlifetime) {
+    public function gc($maxlifetime)
+    {
         return true;
     }
 
@@ -53,7 +57,8 @@ class SessionHandler implements SessionHandlerInterface
      * No-op, interface adherence only
      * @return bool true, always
      */
-    public function open($save_path, $name) {
+    public function open($save_path, $name)
+    {
         return true;
     }
 
@@ -66,7 +71,8 @@ class SessionHandler implements SessionHandlerInterface
      * @return string the serialized session string
      * @throws JWTException if JWT processing fails, tampering is detected, etc
      */
-    public function read($session_id) {
+    public function read($session_id)
+    {
         // session_id is intentionally ignored
         if (empty($_COOKIE[$this->cookie])) {
             return '';
@@ -92,7 +98,8 @@ class SessionHandler implements SessionHandlerInterface
      * @throws OverflowException if there is too much session data
      * @throws JWTException if the data cannot be signed
      */
-    public function write($session_id, $session_data) {
+    public function write($session_id, $session_data)
+    {
         $data = [
             'jti' => $session_id,
 //            future considerations:
@@ -105,16 +112,19 @@ class SessionHandler implements SessionHandlerInterface
         $data = $jwt->getEncoded();
         if (strlen($data) >= 4096) {
             throw new OverflowException(
-                "Too much data in session to use JWT driver");
+                "Too much data in session to use JWT driver"
+            );
         }
         $params = session_get_cookie_params();
-        ($this->writer)($this->cookie,
+        ($this->writer)(
+            $this->cookie,
             $data,
             $params['lifetime'],
             $params['path'],
             $params['domain'],
             $params['secure'],
-            $params['httponly']);
+            $params['httponly']
+        );
         return true;
     }
 
@@ -124,7 +134,8 @@ class SessionHandler implements SessionHandlerInterface
      *
      * @codeCoverageIgnoreStart
      */
-    public function setWriter(callable $writer) {
+    public function setWriter(callable $writer)
+    {
         $this->writer = $writer;
         return $this;
     }
