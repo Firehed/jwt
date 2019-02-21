@@ -10,38 +10,54 @@ use Firehed\Security\Secret;
  * @covers ::<protected>
  * @covers ::<private>
  */
-class KeyContainerTest extends \PHPUnit_Framework_TestCase
+class KeyContainerTest extends \PHPUnit\Framework\TestCase
 {
 
-    public function testConstruct() {
-        $this->assertInstanceOf(KeyContainer::class,
-            new KeyContainer());
+    /**
+     * @return void
+     */
+    public function testConstruct()
+    {
+        $this->assertInstanceOf(
+            KeyContainer::class,
+            new KeyContainer()
+        );
     }
 
     /**
      * @covers ::setDefaultKey
+     * @return void
      */
-    public function testSetDefaultKeyReturnsThis() {
+    public function testSetDefaultKeyReturnsThis()
+    {
         $kc = new KeyContainer();
-        $this->assertSame($kc, $kc->setDefaultKey(3),
-            'setDefaultKey did not return $this');
+        $this->assertSame(
+            $kc,
+            $kc->setDefaultKey(3),
+            'setDefaultKey did not return $this'
+        );
     }
 
     /**
      * @covers ::addKey
+     * @return void
      */
-    public function testAddKeyReturnsThis() {
+    public function testAddKeyReturnsThis()
+    {
         $kc = new KeyContainer();
         $this->assertSame(
             $kc,
             $kc->addKey('id', Algorithm::HMAC_SHA_256(), new Secret('secret')),
-            'addKey did not return $this');
+            'addKey did not return $this'
+        );
     }
 
     /**
      * @covers ::getKey
+     * @return void
      */
-    public function testGetKeyReturnsMatchedID() {
+    public function testGetKeyReturnsMatchedID()
+    {
         $kc = $this->getKeyContainer();
         list($alg, $secret, $id) = $kc->getKey('HS384');
         $this->assertSame('HS384', $id, 'Wrong ID');
@@ -51,8 +67,10 @@ class KeyContainerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::getKey
+     * @return void
      */
-    public function testGetKeyReturnsExplicitDefault() {
+    public function testGetKeyReturnsExplicitDefault()
+    {
         $kc = $this->getKeyContainer()->setDefaultKey(512);
         list($alg, $secret, $id) = $kc->getKey();
         $this->assertSame(512, $id, 'Wrong ID');
@@ -62,8 +80,10 @@ class KeyContainerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::getKey
+     * @return void
      */
-    public function testGetKeyReturnsMostRecentEntryWithNoDefault() {
+    public function testGetKeyReturnsMostRecentEntryWithNoDefault()
+    {
         $kc = $this->getKeyContainer();
         list($alg, $secret, $id) = $kc->getKey();
         $this->assertSame('last', $id, 'Wrong ID');
@@ -73,8 +93,10 @@ class KeyContainerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::getKey
+     * @return void
      */
-    public function testGetKeyThrowsWhenNoKeyMatchesExplicit() {
+    public function testGetKeyThrowsWhenNoKeyMatchesExplicit()
+    {
         $kc = $this->getKeyContainer();
         $this->expectException(KeyNotFoundException::class);
         $kc->getKey('notpresent');
@@ -82,8 +104,10 @@ class KeyContainerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::getKey
+     * @return void
      */
-    public function testGetKeyThrowsWhenNoKeyMatchesDefault() {
+    public function testGetKeyThrowsWhenNoKeyMatchesDefault()
+    {
         $kc = $this->getKeyContainer()->setDefaultKey('notpresent');
         $this->expectException(KeyNotFoundException::class);
         $kc->getKey();
@@ -91,14 +115,17 @@ class KeyContainerTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @covers ::getKey
+     * @return void
      */
-    public function testGetKeyThrowsWhenNoKeys() {
+    public function testGetKeyThrowsWhenNoKeys()
+    {
         $kc = new KeyContainer();
         $this->expectException(KeyNotFoundException::class);
         $kc->getKey();
     }
 
-    private function getKeyContainer(): KeyContainer {
+    private function getKeyContainer(): KeyContainer
+    {
         return (new KeyContainer())
             ->addKey(256, Algorithm::HMAC_SHA_256(), new Secret('HS256'))
             ->addKey(384, Algorithm::HMAC_SHA_384(), new Secret('HS384'))
@@ -109,6 +136,4 @@ class KeyContainerTest extends \PHPUnit_Framework_TestCase
             ->addKey('last', Algorithm::NONE(), new Secret(''));
             ;
     }
-
-
 }

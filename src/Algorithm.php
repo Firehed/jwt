@@ -19,8 +19,8 @@ use Firehed\Common\Enum;
  * @method static Algorithm PSS_384()
  * @method static Algorithm PSS_512()
  */
-class Algorithm extends Enum {
-
+class Algorithm extends Enum
+{
     const NONE = 'none';
     const HMAC_SHA_256 = 'HS256';
     const HMAC_SHA_384 = 'HS384';
@@ -34,5 +34,4 @@ class Algorithm extends Enum {
     const PSS_256 = 'PS256';
     const PSS_384 = 'PS384';
     const PSS_512 = 'PS512';
-
 }

@@ -14,12 +14,29 @@
         }
     },
     "require": {
-        "firehed/arctools": "*@dev",
-        "firehed/common": "*@dev",
+        "firehed/common": "^1.0",
         "firehed/security": "^1.0",
         "php": ">=7.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "*"
+        "phpstan/phpstan": "^0.11.2",
+        "phpstan/phpstan-phpunit": "^0.11.0",
+        "phpstan/phpstan-strict-rules": "^0.11.0",
+        "phpunit/phpunit": "^7.0.3",
+        "squizlabs/php_codesniffer": "^3.4"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "scripts": {
+        "test": [
+            "@phpunit",
+            "@phpstan",
+            "@phpcs"
+        ],
+        "autofix": "phpcbf src tests",
+        "phpunit": "phpunit",
+        "phpstan": "phpstan analyse --no-progress -c phpstan.neon -l7 src tests",
+        "phpcs": "phpcs src tests"
     }
 }
