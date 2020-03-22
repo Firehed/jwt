@@ -43,8 +43,8 @@ jobs:
 
             - name: Install dependencies
               run: |
-                  if [[ "$DEPENDENCIES" = 'high' ]]; then composer update $DEFAULT_COMPOSER_FLAGS; fi
-                  if [[ "$DEPENDENCIES" = 'low' ]]; then composer update $DEFAULT_COMPOSER_FLAGS --prefer-lowest; fi
+                  if [[ ${{ matrix.dependencies }} = 'high' ]]; then composer update $DEFAULT_COMPOSER_FLAGS; fi
+                  if [[ ${{ maxrix.dependencies }} = 'low' ]]; then composer update $DEFAULT_COMPOSER_FLAGS --prefer-lowest; fi
 
 
             - name: PHPUnit
