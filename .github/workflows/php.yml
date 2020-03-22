@@ -1,0 +1,57 @@
+name: CI
+
+on:
+    push:
+        branches:
+            - master
+    pull_request:
+
+env:
+    DEFAULT_COMPOSER_FLAGS: --no-interaction --no-ansi --no-progress --no-suggest
+
+jobs:
+
+    test:
+
+        name: Test
+
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                php-version:
+                    - 7.1
+                    - 7.2
+                    - 7.3
+                    - 7.4
+                dependencies:
+                    - low
+                    - high
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Set up PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-version }}
+
+            - name: Show PHP info
+              run: php -v
+
+            - name: Validate Composer
+              run: composer validate
+
+            - name: Install dependencies
+              run: |
+                  if [[ ${{ matrix.dependencies }} = 'high' ]]; then composer update $DEFAULT_COMPOSER_FLAGS; fi
+                  if [[ ${{ matrix.dependencies }} = 'low' ]]; then composer update $DEFAULT_COMPOSER_FLAGS --prefer-lowest; fi
+
+
+            - name: PHPUnit
+              run: composer phpunit
+
+            - name: PHPStan
+              run: composer phpstan
+
+            - name: PHPCS
+              run: composer phpcs
