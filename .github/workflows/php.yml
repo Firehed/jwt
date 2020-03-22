@@ -15,18 +15,25 @@ jobs:
 
         name: Test
 
+        runs-on: ubuntu-latest
+
         strategy:
             matrix:
-                # php-version:
-                #     - 7.1
-                #     - 7.2
-                #     - 7.3
-                #     - 7.4
+                php-version:
+                    - 7.1
+                    - 7.2
+                    - 7.3
+                    - 7.4
                 dependencies:
                     - low
                     - high
         steps:
             - uses: actions/checkout@v2
+
+            - name: Set up PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-version }}
 
             - name: Show PHP info
               run: php -v
