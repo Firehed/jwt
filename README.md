@@ -1,5 +1,7 @@
 # JWT - JSON Web Tokens
 
+![CI](https://github.com/Firehed/jwt/workflows/CI/badge.svg)
+
 ## Installation
 `composer require firehed/jwt`
 
@@ -87,7 +89,7 @@ Note: key ID can take any scalar format. The example above uses a datestamp, but
 
 When calling `getClaims()`, an exception may be thrown if the signature cannot be verified or the time validity specified in standard `nbf` or `exp` claims is out of line.
 
-Be prepared to catch `InvalidSignatureException`, `TokenExpiredException`, and `TokenNotYetValidException` when calling those methods. 
+Be prepared to catch `InvalidSignatureException`, `TokenExpiredException`, and `TokenNotYetValidException` when calling those methods.
 
 If an invalid token is passed to `JWT::fromEncoded()`, an `InvalidFormatException` will be thrown.
 
