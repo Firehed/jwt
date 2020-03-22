@@ -28,7 +28,7 @@ jobs:
         steps:
             - uses: actions/checkout@v2
 
-            - run: Show PHP info
+            - name: Show PHP info
               run: php -v
 
             - name: Validate Composer
