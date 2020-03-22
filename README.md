@@ -1,6 +1,6 @@
 # JWT - JSON Web Tokens
 
-![CI](https://github.com/Firehed/jwt/workflows/CI/badge.svg)
+[![CI](https://github.com/Firehed/jwt/workflows/CI/badge.svg)](https://github.com/Firehed/jwt/actions?query=workflow%3ACI+branch%3Amaster)
 
 ## Installation
 `composer require firehed/jwt`
