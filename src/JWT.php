@@ -1,11 +1,14 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Firehed\JWT;
 
 use BadMethodCallException;
 use Exception;
 use Firehed\Security\Secret;
 use RuntimeException;
+use UnexpectedValueException;
 
 class JWT
 {
@@ -47,6 +50,9 @@ class JWT
         return sprintf('%s.%s.%s', $headers, $claims, $signature);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getClaims(): array
     {
         // Prevent any access to the data unless verification has succeeded or
@@ -63,6 +69,9 @@ class JWT
         throw new InvalidSignatureException("Signature is invalid");
     } // getClaims
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getUnverifiedClaims(): array
     {
         return $this->claims;
@@ -143,6 +152,9 @@ class JWT
                 throw new Exception("Unsupported algorithm");
             // use openssl_sign and friends to do the signing
         }
+        if ($data === false) {
+            throw new UnexpectedValueException('Payload could not be hashed');
+        }
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     } // sign
 
@@ -163,6 +175,7 @@ class JWT
         }
     } // enforceExpirations
 
+    /** @return array<mixed> */
     private static function b64decode(string $base64_str): array
     {
         $json = base64_decode(strtr($base64_str, '-_', '+/'), true);
@@ -176,6 +189,7 @@ class JWT
         return $decoded;
     } // b64decode
 
+    /** @param array<mixed> $data */
     private static function b64encode(array $data): string
     {
         $json = json_encode($data, \JSON_UNESCAPED_SLASHES);
