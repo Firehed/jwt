@@ -47,7 +47,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
         $kc = new KeyContainer();
         self::assertSame(
             $kc,
-            $kc->addKey('id', Algorithm::HMAC_SHA_256(), new Secret('secret')),
+            $kc->addKey('id', Algorithm::HMAC_SHA_256, new Secret('secret')),
             'addKey did not return $this'
         );
     }
@@ -61,7 +61,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
         $kc = $this->getKeyContainer();
         list($alg, $secret, $id) = $kc->getKey('HS384');
         self::assertSame('HS384', $id, 'Wrong ID');
-        self::assertEquals(Algorithm::HMAC_SHA_384(), $alg, 'Wrong algorithm');
+        self::assertEquals(Algorithm::HMAC_SHA_384, $alg, 'Wrong algorithm');
         self::assertSame('HS384', $secret->reveal(), 'Wrong secret');
     }
 
@@ -74,7 +74,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
         $kc = $this->getKeyContainer()->setDefaultKey(512);
         list($alg, $secret, $id) = $kc->getKey();
         self::assertSame(512, $id, 'Wrong ID');
-        self::assertEquals(Algorithm::HMAC_SHA_512(), $alg, 'Wrong algorithm');
+        self::assertEquals(Algorithm::HMAC_SHA_512, $alg, 'Wrong algorithm');
         self::assertSame('HS512', $secret->reveal(), 'Wrong secret');
     }
 
@@ -87,7 +87,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
         $kc = $this->getKeyContainer();
         list($alg, $secret, $id) = $kc->getKey();
         self::assertSame('last', $id, 'Wrong ID');
-        self::assertEquals(Algorithm::NONE(), $alg, 'Wrong algorithm');
+        self::assertEquals(Algorithm::NONE, $alg, 'Wrong algorithm');
         self::assertSame('', $secret->reveal(), 'Wrong secret');
     }
 
@@ -127,13 +127,13 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
     private function getKeyContainer(): KeyContainer
     {
         return (new KeyContainer())
-            ->addKey(256, Algorithm::HMAC_SHA_256(), new Secret('HS256'))
-            ->addKey(384, Algorithm::HMAC_SHA_384(), new Secret('HS384'))
-            ->addKey(512, Algorithm::HMAC_SHA_512(), new Secret('HS512'))
-            ->addKey('HS256', Algorithm::HMAC_SHA_256(), new Secret('HS256'))
-            ->addKey('HS384', Algorithm::HMAC_SHA_384(), new Secret('HS384'))
-            ->addKey('HS512', Algorithm::HMAC_SHA_512(), new Secret('HS512'))
-            ->addKey('last', Algorithm::NONE(), new Secret(''));
+            ->addKey(256, Algorithm::HMAC_SHA_256, new Secret('HS256'))
+            ->addKey(384, Algorithm::HMAC_SHA_384, new Secret('HS384'))
+            ->addKey(512, Algorithm::HMAC_SHA_512, new Secret('HS512'))
+            ->addKey('HS256', Algorithm::HMAC_SHA_256, new Secret('HS256'))
+            ->addKey('HS384', Algorithm::HMAC_SHA_384, new Secret('HS384'))
+            ->addKey('HS512', Algorithm::HMAC_SHA_512, new Secret('HS512'))
+            ->addKey('last', Algorithm::NONE, new Secret(''));
             ;
     }
 }
