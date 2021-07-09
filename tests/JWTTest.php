@@ -2,8 +2,9 @@
 
 namespace Firehed\JWT;
 
-use Firehed\Security\Secret;
 use BadMethodCallException;
+use Error;
+use Firehed\Security\Secret;
 
 /**
  * @coversDefaultClass Firehed\JWT\JWT
@@ -157,7 +158,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     public function testNotSettingKeysFails()
     {
         $tok = new JWT(['data' => true]);
-        $this->expectException(BadMethodCallException::class);
+        // Expect property access before initialization
+        $this->expectException(Error::class);
         $tok->getEncoded();
     } // testNotSettingAlgorithmFails
 
