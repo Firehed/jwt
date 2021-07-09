@@ -44,7 +44,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
      */
     public function testOpen()
     {
-        $this->assertTrue($this->handler->open('', ''));
+        self::assertTrue($this->handler->open('', ''));
     }
 
     /**
@@ -53,7 +53,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
      */
     public function testClose()
     {
-        $this->assertTrue($this->handler->close());
+        self::assertTrue($this->handler->close());
     }
 
     /**
@@ -62,7 +62,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
      */
     public function testGC()
     {
-        $this->assertTrue($this->handler->gc(1));
+        self::assertTrue($this->handler->gc(1));
     }
 
     /**
@@ -71,7 +71,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
      */
     public function testDestroy()
     {
-        $this->assertTrue($this->handler->destroy('session_id'));
+        self::assertTrue($this->handler->destroy('session_id'));
     }
 
     /**
@@ -85,7 +85,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
             'zMTg2OyJ9.Y9gokU2iYi7Kt46G3_L0LKfJyHbFz1aJGJoXGql2dJE';
         $expected = 'x|i:1456703186;';
         $data = $this->handler->read('session_id');
-        $this->assertSame(
+        self::assertSame(
             $expected,
             $data,
             'JWT cookie did not decode as expected'
@@ -102,7 +102,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
             'I6IkpXVCIsImtpZCI6MX0.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzA'.
             'zMTg2OyJ9.invalidsig';
         $data = $this->handler->read('');
-        $this->assertSame(
+        self::assertSame(
             '',
             $data,
             'Cookie with invalid signature should return no data when read'
@@ -119,7 +119,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
             'I6IkpXVCIsImtpZCI6Mn0.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzA'.
             'zMTg2OyJ9.fy0iwbVX0VZUw7VI68BucHJiEB8Mnhx-bVlAUYssLrg';
         $data = $this->handler->read('session_id');
-        $this->assertSame(
+        self::assertSame(
             '',
             $data,
             'JWT with unknown key ID should return an empty string'
@@ -132,9 +132,9 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
      */
     public function testReadWithEmptyCookie()
     {
-        $this->assertEmpty($_COOKIE, 'Precondition failed: COOKIE not empty');
+        self::assertEmpty($_COOKIE, 'Precondition failed: COOKIE not empty');
         $data = $this->handler->read('session_id');
-        $this->assertSame(
+        self::assertSame(
             '',
             $data,
             'JWT with unknown key ID should return an empty string'
@@ -151,7 +151,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
         $jwt = JWT::fromEncoded($this->cookieData, $this->container);
 
         $claims = $jwt->getClaims();
-        $this->assertSame(
+        self::assertSame(
             'somedata',
             $claims[SessionHandler::CLAIM],
             'Claims were not written to the cookie'

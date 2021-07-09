@@ -22,7 +22,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     public function testDecode(string $vector, array $exp_claims, KeyContainer $keys)
     {
         $JWT = JWT::fromEncoded($vector, $keys);
-        $this->assertSame(
+        self::assertSame(
             $exp_claims,
             $JWT->getUnverifiedClaims(),
             'Claims did not match'
@@ -59,7 +59,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
             "name" => "John Doe",
             "admin" => true
         ];
-        $this->assertSame($expected, $JWT->getUnverifiedClaims());
+        self::assertSame($expected, $JWT->getUnverifiedClaims());
     } // testDecodeAllowsInvalidSignatureWhenExplicitlyConfigured
 
     /**
@@ -72,7 +72,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         $tok = new JWT($claims);
         $tok->setKeys($keys);
         $out = $tok->getEncoded();
-        $this->assertSame($vector, $out, 'Output did not match test vector');
+        self::assertSame($vector, $out, 'Output did not match test vector');
     } // testEncode
 
     /**
@@ -114,7 +114,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
             ->addKey(2, Algorithm::HMAC_SHA_512(), new Secret('yyy'));
         $jwt = new JWT(['user' => 'Foo Bar']);
         $jwt->setKeys($keys);
-        $this->assertSame(
+        self::assertSame(
             $expected,
             $jwt->getEncoded(3),
             'Encoded output did not match expected'
@@ -137,13 +137,13 @@ class JWTTest extends \PHPUnit\Framework\TestCase
             ->addKey(4, Algorithm::HMAC_SHA_512(), new Secret('yyy'))
             ->setDefaultKey(2);
         $jwt = JWT::fromEncoded($data, $kc);
-        $this->assertSame(
+        self::assertSame(
             3,
             $jwt->getKeyID(),
             '`kid` header was not retreived correctly'
         );
         // use key id 3 to determine secret
-        $this->assertSame(
+        self::assertSame(
             ['user' => 'Foo Bar'],
             $jwt->getClaims(),
             'getClaims was wrong after checking key id'
@@ -170,7 +170,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     {
         $data = ['data' => true];
         $tok = new JWT($data);
-        $this->assertEquals(
+        self::assertEquals(
             $data,
             $tok->getClaims(),
             'getClaims did not return the provided data'
@@ -250,7 +250,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     public function testSetKeysReturnsthis()
     {
         $jwt = new JWT([]);
-        $this->assertSame(
+        self::assertSame(
             $jwt,
             $jwt->setKeys($this->getKeyContainer()),
             'setKeys did not return $this'

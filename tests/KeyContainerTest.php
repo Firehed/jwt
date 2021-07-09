@@ -18,7 +18,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
      */
     public function testConstruct()
     {
-        $this->assertInstanceOf(
+        self::assertInstanceOf(
             KeyContainer::class,
             new KeyContainer()
         );
@@ -31,7 +31,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
     public function testSetDefaultKeyReturnsThis()
     {
         $kc = new KeyContainer();
-        $this->assertSame(
+        self::assertSame(
             $kc,
             $kc->setDefaultKey(3),
             'setDefaultKey did not return $this'
@@ -45,7 +45,7 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
     public function testAddKeyReturnsThis()
     {
         $kc = new KeyContainer();
-        $this->assertSame(
+        self::assertSame(
             $kc,
             $kc->addKey('id', Algorithm::HMAC_SHA_256(), new Secret('secret')),
             'addKey did not return $this'
@@ -60,9 +60,9 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
     {
         $kc = $this->getKeyContainer();
         list($alg, $secret, $id) = $kc->getKey('HS384');
-        $this->assertSame('HS384', $id, 'Wrong ID');
-        $this->assertEquals(Algorithm::HMAC_SHA_384(), $alg, 'Wrong algorithm');
-        $this->assertSame('HS384', $secret->reveal(), 'Wrong secret');
+        self::assertSame('HS384', $id, 'Wrong ID');
+        self::assertEquals(Algorithm::HMAC_SHA_384(), $alg, 'Wrong algorithm');
+        self::assertSame('HS384', $secret->reveal(), 'Wrong secret');
     }
 
     /**
@@ -73,9 +73,9 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
     {
         $kc = $this->getKeyContainer()->setDefaultKey(512);
         list($alg, $secret, $id) = $kc->getKey();
-        $this->assertSame(512, $id, 'Wrong ID');
-        $this->assertEquals(Algorithm::HMAC_SHA_512(), $alg, 'Wrong algorithm');
-        $this->assertSame('HS512', $secret->reveal(), 'Wrong secret');
+        self::assertSame(512, $id, 'Wrong ID');
+        self::assertEquals(Algorithm::HMAC_SHA_512(), $alg, 'Wrong algorithm');
+        self::assertSame('HS512', $secret->reveal(), 'Wrong secret');
     }
 
     /**
@@ -86,9 +86,9 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
     {
         $kc = $this->getKeyContainer();
         list($alg, $secret, $id) = $kc->getKey();
-        $this->assertSame('last', $id, 'Wrong ID');
-        $this->assertEquals(Algorithm::NONE(), $alg, 'Wrong algorithm');
-        $this->assertSame('', $secret->reveal(), 'Wrong secret');
+        self::assertSame('last', $id, 'Wrong ID');
+        self::assertEquals(Algorithm::NONE(), $alg, 'Wrong algorithm');
+        self::assertSame('', $secret->reveal(), 'Wrong secret');
     }
 
     /**
