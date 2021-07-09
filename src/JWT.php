@@ -45,7 +45,7 @@ class JWT
             );
         }
         list($alg, $secret, $id) = $this->keys->getKey($keyId);
-        $this->headers['alg'] = $alg->getValue();
+        $this->headers['alg'] = $alg;
         $this->headers['kid'] = $id;
 
         $headers = self::b64encode($this->headers);
@@ -109,7 +109,7 @@ class JWT
         $this->is_verified = false;
         list($alg, $secret, $id) = $this->keys->getKey($this->headers['kid'] ?? null);
         // Always verify against known algorithm from key container + key id
-        $this->headers['alg'] = $alg->getValue();
+        $this->headers['alg'] = $alg;
         if ($this->headers['alg'] === Algorithm::NONE) {
             return;
         }
