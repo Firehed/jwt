@@ -6,9 +6,7 @@ namespace Firehed\JWT;
 use Firehed\Security\Secret;
 
 /**
- * @coversDefaultClass Firehed\JWT\KeyContainer
- * @covers ::<protected>
- * @covers ::<private>
+ * @covers Firehed\JWT\KeyContainer
  */
 class KeyContainerTest extends \PHPUnit\Framework\TestCase
 {
@@ -23,9 +21,6 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @covers ::setDefaultKey
-     */
     public function testSetDefaultKeyReturnsThis(): void
     {
         $kc = new KeyContainer();
@@ -36,9 +31,6 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @covers ::addKey
-     */
     public function testAddKeyReturnsThis(): void
     {
         $kc = new KeyContainer();
@@ -49,9 +41,6 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @covers ::getKey
-     */
     public function testGetKeyReturnsMatchedID(): void
     {
         $kc = $this->getKeyContainer();
@@ -61,9 +50,6 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
         self::assertSame('HS384', $secret->reveal(), 'Wrong secret');
     }
 
-    /**
-     * @covers ::getKey
-     */
     public function testGetKeyReturnsExplicitDefault(): void
     {
         $kc = $this->getKeyContainer()->setDefaultKey(512);
@@ -73,9 +59,6 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
         self::assertSame('HS512', $secret->reveal(), 'Wrong secret');
     }
 
-    /**
-     * @covers ::getKey
-     */
     public function testGetKeyReturnsMostRecentEntryWithNoDefault(): void
     {
         $kc = $this->getKeyContainer();
@@ -85,9 +68,6 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
         self::assertSame('', $secret->reveal(), 'Wrong secret');
     }
 
-    /**
-     * @covers ::getKey
-     */
     public function testGetKeyThrowsWhenNoKeyMatchesExplicit(): void
     {
         $kc = $this->getKeyContainer();
@@ -95,9 +75,6 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
         $kc->getKey('notpresent');
     }
 
-    /**
-     * @covers ::getKey
-     */
     public function testGetKeyThrowsWhenNoKeyMatchesDefault(): void
     {
         $kc = $this->getKeyContainer()->setDefaultKey('notpresent');
@@ -105,9 +82,6 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
         $kc->getKey();
     }
 
-    /**
-     * @covers ::getKey
-     */
     public function testGetKeyThrowsWhenNoKeys(): void
     {
         $kc = new KeyContainer();

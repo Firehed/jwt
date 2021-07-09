@@ -8,9 +8,7 @@ use OverflowException;
 use SessionHandlerInterface;
 
 /**
- * @coversDefaultClass Firehed\JWT\SessionHandler
- * @covers ::<protected>
- * @covers ::<private>
+ * @covers Firehed\JWT\SessionHandler
  */
 class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 {
@@ -37,41 +35,26 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
         $this->handler->setWriter([$this, 'setCookie']);
     }
 
-    /**
-     * @covers ::open
-     */
     public function testOpen(): void
     {
         self::assertTrue($this->handler->open('', ''));
     }
 
-    /**
-     * @covers ::close
-     */
     public function testClose(): void
     {
         self::assertTrue($this->handler->close());
     }
 
-    /**
-     * @covers ::gc
-     */
     public function testGC(): void
     {
         self::assertTrue($this->handler->gc(1));
     }
 
-    /**
-     * @covers ::destroy
-     */
     public function testDestroy(): void
     {
         self::assertTrue($this->handler->destroy('session_id'));
     }
 
-    /**
-     * @covers ::read
-     */
     public function testRead(): void
     {
         $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
@@ -86,9 +69,6 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @covers ::read
-     */
     public function testReadWithForgedSignature(): void
     {
         $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
@@ -102,9 +82,6 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @covers ::read
-     */
     public function testReadWithUnexpectedKeyID(): void
     {
         $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
@@ -118,9 +95,6 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @covers ::read
-     */
     public function testReadWithEmptyCookie(): void
     {
         self::assertEmpty($_COOKIE, 'Precondition failed: COOKIE not empty');
@@ -132,9 +106,6 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @covers ::write
-     */
     public function testWrite(): void
     {
         $this->handler->write('sid', 'somedata');
@@ -148,9 +119,6 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    /**
-     * @covers ::write
-     */
     public function testWriteTooMuchThrows(): void
     {
         $this->expectException(OverflowException::class);
