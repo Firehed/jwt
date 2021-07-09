@@ -76,11 +76,11 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     } // testEncode
 
     /**
-     * @expectedException Firehed\JWT\TokenNotYetValidException
      * @return void
      */
     public function testEnforceNBF()
     {
+        self::expectException(TokenNotYetValidException::class);
         JWT::fromEncoded(
             'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.'.
             'eyJuYmYiOjk5OTk5OTk5OTk5OX0.',
@@ -89,11 +89,11 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     } // testEnforceNBF
 
     /**
-     * @expectedException Firehed\JWT\TokenExpiredException
      * @return void
      */
     public function testEnforceEXP()
     {
+        self::expectException(TokenExpiredException::class);
         JWT::fromEncoded(
             'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOjF9.',
             $this->getKeyContainer()->setDefaultKey('none')
@@ -179,28 +179,27 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::fromEncoded
-     * @expectedException Firehed\JWT\InvalidFormatException
      * @return void
      */
     public function testDecodeStringWithNoPeriods()
     {
+        self::expectException(InvalidFormatException::class);
         JWT::fromEncoded('asdfklj290iasdf', $this->getKeyContainer());
     } // testDecodeStringWithNoPeriods
 
     /**
      * @covers ::fromEncoded
-     * @expectedException Firehed\JWT\InvalidFormatException
      * @return void
      */
     public function testDecodeInvalidJSON()
     {
+        self::expectException(InvalidFormatException::class);
         // test.test
         JWT::fromEncoded('dGVzdA.dGVzdA.', $this->getKeyContainer());
     } // testDecodeInvalidJSON
 
     /**
      * @covers ::getClaims
-     * @expectedException BadMethodCallException
      * @return void
      */
     public function testNoneAlgorithmRequiresGetUnverifedClaims()
@@ -210,6 +209,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
             $vector,
             $this->getKeyContainer()->setDefaultKey('none')
         );
+        self::expectException(BadMethodCallException::class);
         $jwt->getClaims();
     } // testNoneAlgorithmRequiresGetUnverifedClaims
 
