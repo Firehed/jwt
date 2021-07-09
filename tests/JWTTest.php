@@ -169,9 +169,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::fromEncoded
-     * @return void
      */
-    public function testDecodeStringWithNoPeriods()
+    public function testDecodeStringWithNoPeriods(): void
     {
         self::expectException(InvalidFormatException::class);
         JWT::fromEncoded('asdfklj290iasdf', $this->getKeyContainer());
@@ -179,9 +178,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::fromEncoded
-     * @return void
      */
-    public function testDecodeInvalidJSON()
+    public function testDecodeInvalidJSON(): void
     {
         self::expectException(InvalidFormatException::class);
         // test.test
@@ -190,9 +188,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getClaims
-     * @return void
      */
-    public function testNoneAlgorithmRequiresGetUnverifedClaims()
+    public function testNoneAlgorithmRequiresGetUnverifedClaims(): void
     {
         $vector = 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJmb28iOiJiYXIifQ.';
         $jwt = JWT::fromEncoded(
@@ -205,9 +202,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getClaims
-     * @return void
      */
-    public function testModifiedAlgorithmTriggersInvalidSignature()
+    public function testModifiedAlgorithmTriggersInvalidSignature(): void
     {
         $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.'.
             'eyJmb28iOiJiYXIifQ.'.
@@ -226,18 +222,16 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::__construct
      * @doesNotPerformAssertions
-     * @return void
      */
-    public function testConstruct()
+    public function testConstruct(): void
     {
         $jwt = new JWT(['foo' => 'bar']);
     } // testConstruct
 
     /**
      * @covers ::setKeys
-     * @return void
      */
-    public function testSetKeysReturnsthis()
+    public function testSetKeysReturnsthis(): void
     {
         $jwt = new JWT([]);
         self::assertSame(

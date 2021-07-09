@@ -105,8 +105,7 @@ class JWT
         return $token;
     }
 
-    /** @return void */
-    private function authenticate()
+    private function authenticate(): void
     {
         $this->is_verified = false;
         list($alg, $secret, $id) = $this->keys->getKey($this->headers['kid'] ?? null);
@@ -158,8 +157,7 @@ class JWT
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     } // sign
 
-    /** @return void */
-    private function enforceExpirations()
+    private function enforceExpirations(): void
     {
         if (isset($this->claims['exp'])) {
             $exp = $this->claims['exp'];

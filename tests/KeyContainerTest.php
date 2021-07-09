@@ -14,9 +14,8 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 {
 
     /**
-     * @return void
      */
-    public function testConstruct()
+    public function testConstruct(): void
     {
         self::assertInstanceOf(
             KeyContainer::class,
@@ -26,9 +25,8 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::setDefaultKey
-     * @return void
      */
-    public function testSetDefaultKeyReturnsThis()
+    public function testSetDefaultKeyReturnsThis(): void
     {
         $kc = new KeyContainer();
         self::assertSame(
@@ -40,9 +38,8 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::addKey
-     * @return void
      */
-    public function testAddKeyReturnsThis()
+    public function testAddKeyReturnsThis(): void
     {
         $kc = new KeyContainer();
         self::assertSame(
@@ -54,9 +51,8 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getKey
-     * @return void
      */
-    public function testGetKeyReturnsMatchedID()
+    public function testGetKeyReturnsMatchedID(): void
     {
         $kc = $this->getKeyContainer();
         list($alg, $secret, $id) = $kc->getKey('HS384');
@@ -67,9 +63,8 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getKey
-     * @return void
      */
-    public function testGetKeyReturnsExplicitDefault()
+    public function testGetKeyReturnsExplicitDefault(): void
     {
         $kc = $this->getKeyContainer()->setDefaultKey(512);
         list($alg, $secret, $id) = $kc->getKey();
@@ -80,9 +75,8 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getKey
-     * @return void
      */
-    public function testGetKeyReturnsMostRecentEntryWithNoDefault()
+    public function testGetKeyReturnsMostRecentEntryWithNoDefault(): void
     {
         $kc = $this->getKeyContainer();
         list($alg, $secret, $id) = $kc->getKey();
@@ -93,9 +87,8 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getKey
-     * @return void
      */
-    public function testGetKeyThrowsWhenNoKeyMatchesExplicit()
+    public function testGetKeyThrowsWhenNoKeyMatchesExplicit(): void
     {
         $kc = $this->getKeyContainer();
         $this->expectException(KeyNotFoundException::class);
@@ -104,9 +97,8 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getKey
-     * @return void
      */
-    public function testGetKeyThrowsWhenNoKeyMatchesDefault()
+    public function testGetKeyThrowsWhenNoKeyMatchesDefault(): void
     {
         $kc = $this->getKeyContainer()->setDefaultKey('notpresent');
         $this->expectException(KeyNotFoundException::class);
@@ -115,9 +107,8 @@ class KeyContainerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getKey
-     * @return void
      */
-    public function testGetKeyThrowsWhenNoKeys()
+    public function testGetKeyThrowsWhenNoKeys(): void
     {
         $kc = new KeyContainer();
         $this->expectException(KeyNotFoundException::class);

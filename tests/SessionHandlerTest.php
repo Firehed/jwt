@@ -28,7 +28,6 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
     private $handler;
 
     /**
-     * @return void
      */
     public function setUp(): void
     {
@@ -40,45 +39,40 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::open
-     * @return void
      */
-    public function testOpen()
+    public function testOpen(): void
     {
         self::assertTrue($this->handler->open('', ''));
     }
 
     /**
      * @covers ::close
-     * @return void
      */
-    public function testClose()
+    public function testClose(): void
     {
         self::assertTrue($this->handler->close());
     }
 
     /**
      * @covers ::gc
-     * @return void
      */
-    public function testGC()
+    public function testGC(): void
     {
         self::assertTrue($this->handler->gc(1));
     }
 
     /**
      * @covers ::destroy
-     * @return void
      */
-    public function testDestroy()
+    public function testDestroy(): void
     {
         self::assertTrue($this->handler->destroy('session_id'));
     }
 
     /**
      * @covers ::read
-     * @return void
      */
-    public function testRead()
+    public function testRead(): void
     {
         $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
             'I6IkpXVCIsImtpZCI6MX0.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzA'.
@@ -94,9 +88,8 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::read
-     * @return void
      */
-    public function testReadWithForgedSignature()
+    public function testReadWithForgedSignature(): void
     {
         $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
             'I6IkpXVCIsImtpZCI6MX0.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzA'.
@@ -111,9 +104,8 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::read
-     * @return void
      */
-    public function testReadWithUnexpectedKeyID()
+    public function testReadWithUnexpectedKeyID(): void
     {
         $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
             'I6IkpXVCIsImtpZCI6Mn0.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzA'.
@@ -128,9 +120,8 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::read
-     * @return void
      */
-    public function testReadWithEmptyCookie()
+    public function testReadWithEmptyCookie(): void
     {
         self::assertEmpty($_COOKIE, 'Precondition failed: COOKIE not empty');
         $data = $this->handler->read('session_id');
@@ -143,9 +134,8 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::write
-     * @return void
      */
-    public function testWrite()
+    public function testWrite(): void
     {
         $this->handler->write('sid', 'somedata');
         $jwt = JWT::fromEncoded($this->cookieData, $this->container);
@@ -160,9 +150,8 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::write
-     * @return void
      */
-    public function testWriteTooMuchThrows()
+    public function testWriteTooMuchThrows(): void
     {
         $this->expectException(OverflowException::class);
         $this->handler->write('sid', str_repeat('asdf', 1024));
