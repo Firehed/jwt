@@ -18,9 +18,9 @@ class JWTTest extends \PHPUnit\Framework\TestCase
      * @covers ::fromEncoded
      * @covers ::getClaims
      * @dataProvider vectors
-     * @return void
+     * @param array<string, mixed> $exp_claims
      */
-    public function testDecode(string $vector, array $exp_claims, KeyContainer $keys)
+    public function testDecode(string $vector, array $exp_claims, KeyContainer $keys): void
     {
         $JWT = JWT::fromEncoded($vector, $keys);
         self::assertSame(
@@ -32,9 +32,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getClaims
-     * @return void
      */
-    public function testGetClaimsThrowsWithBadSignature()
+    public function testGetClaimsThrowsWithBadSignature(): void
     {
         $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OT'.
             'AsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.thisisnotvalid';
@@ -45,9 +44,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getUnverifiedClaims
-     * @return void
      */
-    public function testDecodeAllowsInvalidSignatureWhenExplicitlyConfigured()
+    public function testDecodeAllowsInvalidSignatureWhenExplicitlyConfigured(): void
     {
         $vector = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjEyMzQ1Njc4OT'.
             'AsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.thisisnotvalid';
@@ -66,9 +64,9 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::getEncoded
      * @dataProvider vectors
-     * @return void
+     * @param array<string, mixed> $claims
      */
-    public function testEncode(string $vector, array $claims, KeyContainer $keys)
+    public function testEncode(string $vector, array $claims, KeyContainer $keys): void
     {
         $tok = new JWT($claims);
         $tok->setKeys($keys);
@@ -76,10 +74,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         self::assertSame($vector, $out, 'Output did not match test vector');
     } // testEncode
 
-    /**
-     * @return void
-     */
-    public function testEnforceNBF()
+    public function testEnforceNBF(): void
     {
         self::expectException(TokenNotYetValidException::class);
         JWT::fromEncoded(
@@ -89,10 +84,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         );
     } // testEnforceNBF
 
-    /**
-     * @return void
-     */
-    public function testEnforceEXP()
+    public function testEnforceEXP(): void
     {
         self::expectException(TokenExpiredException::class);
         JWT::fromEncoded(
@@ -103,9 +95,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getEncoded
-     * @return void
      */
-    public function testSpecifyingEncodingKeyProducesCorrectOutput()
+    public function testSpecifyingEncodingKeyProducesCorrectOutput(): void
     {
         $expected = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6M30.eyJ1c2VyI'.
             'joiRm9vIEJhciJ9.E2gekVU0lErEsIqIWSdG7-32yVhALHr_tZu5DFfWVjM';
@@ -126,9 +117,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase
      * Ensures that the key ID header value takes precedence when multiple keys
      * are made available to the decoding method, and the data remains correct.
      * @covers ::getKeyID
-     * @return void
      */
-    public function testGetKeyIDFromDecodedInput()
+    public function testGetKeyIDFromDecodedInput(): void
     {
         $data = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6M30.eyJ1c2VyIjoiR'.
             'm9vIEJhciJ9.E2gekVU0lErEsIqIWSdG7-32yVhALHr_tZu5DFfWVjM';
@@ -153,9 +143,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase
 
     /**
      * @covers ::getEncoded
-     * @return void
      */
-    public function testNotSettingKeysFails()
+    public function testNotSettingKeysFails(): void
     {
         $tok = new JWT(['data' => true]);
         // Expect property access before initialization
@@ -166,9 +155,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     /**
      * @covers ::__construct
      * @covers ::getClaims
-     * @return void
      */
-    public function testNewTokenAllowsAccessToClaims()
+    public function testNewTokenAllowsAccessToClaims(): void
     {
         $data = ['data' => true];
         $tok = new JWT($data);
@@ -259,6 +247,9 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         );
     }
 
+    /**
+     * @return array{string, array<string, mixed>, KeyContainer, bool}[]
+     */
     public function vectors(): array
     {
         // [
