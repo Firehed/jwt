@@ -8,9 +8,7 @@ use OverflowException;
 use SessionHandlerInterface;
 
 /**
- * @coversDefaultClass Firehed\JWT\SessionHandler
- * @covers ::<protected>
- * @covers ::<private>
+ * @covers Firehed\JWT\SessionHandler
  */
 class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 {
@@ -28,141 +26,100 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
     private $handler;
 
     /**
-     * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->container = (new KeyContainer())
-            ->addKey(1, Algorithm::HMAC_SHA_256(), new Secret('t0p $3cr37'));
+            ->addKey(1, Algorithm::HMAC_SHA_256, new Secret('t0p $3cr37'));
         $this->handler = new SessionHandler($this->container);
         $this->handler->setWriter([$this, 'setCookie']);
     }
 
-    /**
-     * @covers ::open
-     * @return void
-     */
-    public function testOpen()
+    public function testOpen(): void
     {
-        $this->assertTrue($this->handler->open('', ''));
+        self::assertTrue($this->handler->open('', ''));
     }
 
-    /**
-     * @covers ::close
-     * @return void
-     */
-    public function testClose()
+    public function testClose(): void
     {
-        $this->assertTrue($this->handler->close());
+        self::assertTrue($this->handler->close());
     }
 
-    /**
-     * @covers ::gc
-     * @return void
-     */
-    public function testGC()
+    public function testGC(): void
     {
-        $this->assertTrue($this->handler->gc(1));
+        self::assertTrue($this->handler->gc(1));
     }
 
-    /**
-     * @covers ::destroy
-     * @return void
-     */
-    public function testDestroy()
+    public function testDestroy(): void
     {
-        $this->assertTrue($this->handler->destroy('session_id'));
+        self::assertTrue($this->handler->destroy('session_id'));
     }
 
-    /**
-     * @covers ::read
-     * @return void
-     */
-    public function testRead()
+    public function testRead(): void
     {
         $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
             'I6IkpXVCIsImtpZCI6MX0.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzA'.
             'zMTg2OyJ9.Y9gokU2iYi7Kt46G3_L0LKfJyHbFz1aJGJoXGql2dJE';
         $expected = 'x|i:1456703186;';
         $data = $this->handler->read('session_id');
-        $this->assertSame(
+        self::assertSame(
             $expected,
             $data,
             'JWT cookie did not decode as expected'
         );
     }
 
-    /**
-     * @covers ::read
-     * @return void
-     */
-    public function testReadWithForgedSignature()
+    public function testReadWithForgedSignature(): void
     {
         $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
             'I6IkpXVCIsImtpZCI6MX0.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzA'.
             'zMTg2OyJ9.invalidsig';
         $data = $this->handler->read('');
-        $this->assertSame(
+        self::assertSame(
             '',
             $data,
             'Cookie with invalid signature should return no data when read'
         );
     }
 
-    /**
-     * @covers ::read
-     * @return void
-     */
-    public function testReadWithUnexpectedKeyID()
+    public function testReadWithUnexpectedKeyID(): void
     {
         $_COOKIE[SessionHandler::DEFAULT_COOKIE] = 'eyJhbGciOiJIUzI1NiIsInR5cC'.
             'I6IkpXVCIsImtpZCI6Mn0.eyJqdGkiOiJYaldsX2ciLCJzZCI6Inh8aToxNDU2NzA'.
             'zMTg2OyJ9.fy0iwbVX0VZUw7VI68BucHJiEB8Mnhx-bVlAUYssLrg';
         $data = $this->handler->read('session_id');
-        $this->assertSame(
+        self::assertSame(
             '',
             $data,
             'JWT with unknown key ID should return an empty string'
         );
     }
 
-    /**
-     * @covers ::read
-     * @return void
-     */
-    public function testReadWithEmptyCookie()
+    public function testReadWithEmptyCookie(): void
     {
-        $this->assertEmpty($_COOKIE, 'Precondition failed: COOKIE not empty');
+        self::assertEmpty($_COOKIE, 'Precondition failed: COOKIE not empty');
         $data = $this->handler->read('session_id');
-        $this->assertSame(
+        self::assertSame(
             '',
             $data,
             'JWT with unknown key ID should return an empty string'
         );
     }
 
-    /**
-     * @covers ::write
-     * @return void
-     */
-    public function testWrite()
+    public function testWrite(): void
     {
         $this->handler->write('sid', 'somedata');
         $jwt = JWT::fromEncoded($this->cookieData, $this->container);
 
         $claims = $jwt->getClaims();
-        $this->assertSame(
+        self::assertSame(
             'somedata',
             $claims[SessionHandler::CLAIM],
             'Claims were not written to the cookie'
         );
     }
 
-    /**
-     * @covers ::write
-     * @return void
-     */
-    public function testWriteTooMuchThrows()
+    public function testWriteTooMuchThrows(): void
     {
         $this->expectException(OverflowException::class);
         $this->handler->write('sid', str_repeat('asdf', 1024));

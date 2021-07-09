@@ -1,20 +1,20 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Firehed\JWT;
 
 use BadMethodCallException;
 use Exception;
 use Firehed\Security\Secret;
 use RuntimeException;
+use UnexpectedValueException;
 
 class JWT
 {
+    private bool $is_verified = false;
 
-    /** @var bool */
-    private $is_verified = false;
-
-    /** @var KeyContainer */
-    private $keys;
+    private KeyContainer $keys;
 
     // Actual JWT components
     /** @var array<string, mixed> */
@@ -26,9 +26,11 @@ class JWT
     /** @var array<mixed> */
     private $claims = [];
 
-    /** @var string */
-    private $signature;
+    private string $signature;
 
+    /**
+     * @param array<string, mixed> $claims
+     */
     public function __construct(array $claims = [])
     {
         $this->claims = $claims;
@@ -38,14 +40,8 @@ class JWT
     /** @param int|string $keyId */
     public function getEncoded($keyId = null): string
     {
-        if ($this->keys === null) {
-            throw new BadMethodCallException(
-                'No keys have been provided to this JWT. Call setKeys() '.
-                'before using getEncoded().'
-            );
-        }
         list($alg, $secret, $id) = $this->keys->getKey($keyId);
-        $this->headers['alg'] = $alg->getValue();
+        $this->headers['alg'] = $alg;
         $this->headers['kid'] = $id;
 
         $headers = self::b64encode($this->headers);
@@ -54,6 +50,9 @@ class JWT
         return sprintf('%s.%s.%s', $headers, $claims, $signature);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getClaims(): array
     {
         // Prevent any access to the data unless verification has succeeded or
@@ -70,6 +69,9 @@ class JWT
         throw new InvalidSignatureException("Signature is invalid");
     } // getClaims
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getUnverifiedClaims(): array
     {
         return $this->claims;
@@ -103,13 +105,12 @@ class JWT
         return $token;
     }
 
-    /** @return void */
-    private function authenticate()
+    private function authenticate(): void
     {
         $this->is_verified = false;
         list($alg, $secret, $id) = $this->keys->getKey($this->headers['kid'] ?? null);
         // Always verify against known algorithm from key container + key id
-        $this->headers['alg'] = $alg->getValue();
+        $this->headers['alg'] = $alg;
         if ($this->headers['alg'] === Algorithm::NONE) {
             return;
         }
@@ -150,11 +151,13 @@ class JWT
                 throw new Exception("Unsupported algorithm");
             // use openssl_sign and friends to do the signing
         }
+        if ($data === false) {
+            throw new UnexpectedValueException('Payload could not be hashed');
+        }
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     } // sign
 
-    /** @return void */
-    private function enforceExpirations()
+    private function enforceExpirations(): void
     {
         if (isset($this->claims['exp'])) {
             $exp = $this->claims['exp'];
@@ -170,6 +173,7 @@ class JWT
         }
     } // enforceExpirations
 
+    /** @return array<mixed> */
     private static function b64decode(string $base64_str): array
     {
         $json = base64_decode(strtr($base64_str, '-_', '+/'), true);
@@ -183,6 +187,7 @@ class JWT
         return $decoded;
     } // b64decode
 
+    /** @param array<mixed> $data */
     private static function b64encode(array $data): string
     {
         $json = json_encode($data, \JSON_UNESCAPED_SLASHES);
