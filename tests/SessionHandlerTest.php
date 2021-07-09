@@ -30,7 +30,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
     /**
      * @return void
      */
-    public function setUp()
+    public function setUp(): void
     {
         $this->container = (new KeyContainer())
             ->addKey(1, Algorithm::HMAC_SHA_256(), new Secret('t0p $3cr37'));
