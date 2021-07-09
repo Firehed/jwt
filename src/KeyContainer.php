@@ -7,7 +7,7 @@ use Firehed\Security\Secret;
 class KeyContainer
 {
 
-    /** @var array */
+    /** @var array{Algorithm::*, Secret}[] */
     private $keys;
 
     /** @var int|string */
@@ -17,9 +17,10 @@ class KeyContainer
     private $last;
 
     /**
+     * @param Algorithm::* $alg
      * @param mixed $id
      */
-    public function addKey($id, Algorithm $alg, Secret $secret): self
+    public function addKey($id, string $alg, Secret $secret): self
     {
         $this->keys[$id] = [$alg, $secret];
         $this->last = $id;
@@ -37,7 +38,7 @@ class KeyContainer
 
     /**
      * @param mixed $id Key ID
-     * @return array [Algorithm, Secret, id]
+     * @return array{Algorithm::*, Secret, string|int}
      */
     public function getKey($id = null): array
     {
