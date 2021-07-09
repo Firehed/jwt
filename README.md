@@ -9,7 +9,7 @@
 ## Usage
 Basic encoding example:
 
-```
+```php
 <?php
 require_once 'vendor/autoload.php';
 use Firehed\JWT;
@@ -29,7 +29,7 @@ $jwt_string = $token->getEncoded();
 
 Basic decoding example:
 
-```
+```php
 <?php
 require_once 'vendor/autoload.php';
 
@@ -68,7 +68,7 @@ It is **highly recommended** to regularly rotate your signing keys, and the JWT 
 
 In your application config, have multiple keys and their IDs defined:
 
-```
+```php
 $keys = new KeyContainer();
 $keys->addKey('20160101',
               Algorithm::HMAC_SHA_256,
@@ -144,7 +144,7 @@ That out of the way, here's how it's done:
 
 ### Session Example
 
-```
+```php
 <?php
 ini_set('session.use_cookies', 0); // Without this, PHP will also send a PHPSESSID cookie, which we neither need nor care about
 session_set_cookie_params(
