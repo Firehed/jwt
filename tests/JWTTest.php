@@ -24,7 +24,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
             $JWT->getUnverifiedClaims(),
             'Claims did not match'
         );
-    } // testDecode
+    }
 
     public function testGetClaimsThrowsWithBadSignature(): void
     {
@@ -33,7 +33,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         $jwt = JWT::fromEncoded($vector, $this->getKeyContainer());
         $this->expectException(InvalidSignatureException::class);
         $jwt->getClaims();
-    } // testGetClaimsThrowsWithBadSignature
+    }
 
     public function testDecodeAllowsInvalidSignatureWhenExplicitlyConfigured(): void
     {
@@ -49,7 +49,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
             "admin" => true
         ];
         self::assertSame($expected, $JWT->getUnverifiedClaims());
-    } // testDecodeAllowsInvalidSignatureWhenExplicitlyConfigured
+    }
 
     /**
      * @dataProvider vectors
@@ -61,7 +61,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         $tok->setKeys($keys);
         $out = $tok->getEncoded();
         self::assertSame($vector, $out, 'Output did not match test vector');
-    } // testEncode
+    }
 
     public function testEnforceNBF(): void
     {
@@ -71,7 +71,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
             'eyJuYmYiOjk5OTk5OTk5OTk5OX0.',
             $this->getKeyContainer()->setDefaultKey('none')
         );
-    } // testEnforceNBF
+    }
 
     public function testEnforceEXP(): void
     {
@@ -80,7 +80,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
             'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJleHAiOjF9.',
             $this->getKeyContainer()->setDefaultKey('none')
         );
-    } // testEnforceEXP
+    }
 
     public function testSpecifyingEncodingKeyProducesCorrectOutput(): void
     {
@@ -132,7 +132,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         // Expect property access before initialization
         $this->expectException(Error::class);
         $tok->getEncoded();
-    } // testNotSettingAlgorithmFails
+    }
 
     public function testNewTokenAllowsAccessToClaims(): void
     {
@@ -143,20 +143,20 @@ class JWTTest extends \PHPUnit\Framework\TestCase
             $tok->getClaims(),
             'getClaims did not return the provided data'
         );
-    } // testNewTokenAllowsAccessToClaims
+    }
 
     public function testDecodeStringWithNoPeriods(): void
     {
         self::expectException(InvalidFormatException::class);
         JWT::fromEncoded('asdfklj290iasdf', $this->getKeyContainer());
-    } // testDecodeStringWithNoPeriods
+    }
 
     public function testDecodeInvalidJSON(): void
     {
         self::expectException(InvalidFormatException::class);
         // test.test
         JWT::fromEncoded('dGVzdA.dGVzdA.', $this->getKeyContainer());
-    } // testDecodeInvalidJSON
+    }
 
     public function testNoneAlgorithmRequiresGetUnverifedClaims(): void
     {
@@ -167,7 +167,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         );
         self::expectException(BadMethodCallException::class);
         $jwt->getClaims();
-    } // testNoneAlgorithmRequiresGetUnverifedClaims
+    }
 
     public function testModifiedAlgorithmTriggersInvalidSignature(): void
     {
@@ -183,7 +183,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         $jwt = JWT::fromEncoded($vector, $keys);
         $this->expectException(InvalidSignatureException::class);
         $jwt->getClaims();
-    } // testModifiedAlgorithmTriggersInvalidSignature
+    }
 
     /**
      * @doesNotPerformAssertions
@@ -191,7 +191,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     public function testConstruct(): void
     {
         $jwt = new JWT(['foo' => 'bar']);
-    } // testConstruct
+    }
 
     public function testSetKeysReturnsthis(): void
     {
@@ -262,7 +262,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
                 false,
             ],
         ];
-    } // vectors
+    }
 
     private function getKeyContainer(): KeyContainer
     {
