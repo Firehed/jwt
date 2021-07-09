@@ -19,8 +19,8 @@
         }
     },
     "require": {
-        "firehed/security": "^1.0",
-        "php": ">=7.3"
+        "php": "^7.3 || ^8.0",
+        "firehed/security": "^1.0"
     },
     "require-dev": {
         "phpstan/phpstan": "^0.12.91",
