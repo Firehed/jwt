@@ -5,6 +5,7 @@ namespace Firehed\JWT;
 use BadMethodCallException;
 use Error;
 use Firehed\Security\Secret;
+use RuntimeException;
 
 /**
  * @covers Firehed\JWT\JWT
@@ -49,6 +50,23 @@ class JWTTest extends \PHPUnit\Framework\TestCase
             "admin" => true
         ];
         self::assertSame($expected, $JWT->getUnverifiedClaims());
+    }
+
+    public function testDecodeThrowsWithNonDictHeader(): void
+    {
+        $vector = 'InN0cmluZ3ki.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG'.
+            '9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.cYa1rl0kZBcZOjv9HG7bKIBiCzNx9v5IeX0X'.
+            'C-JW9Eo';
+        self::expectException(RuntimeException::class);
+        JWT::fromEncoded($vector, $this->getKeyContainer());
+    }
+
+    public function testDecodeThrowsWithNonDictClaims(): void
+    {
+        $vector = 'eyJraWQiOiJIUzI1NiIsImFsZyI6IkhTMjU2In0.InN0cmluZ3ki.cYa1rl'.
+            '0kZBcZOjv9HG7bKIBiCzNx9v5IeX0XC-JW9Eo';
+        self::expectException(RuntimeException::class);
+        JWT::fromEncoded($vector, $this->getKeyContainer());
     }
 
     /**
