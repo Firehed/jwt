@@ -87,6 +87,7 @@ class SessionHandler implements SessionHandlerInterface
         try {
             $jwt = JWT::fromEncoded($encoded, $this->secrets);
             $claims = $jwt->getClaims();
+            assert(array_key_exists(self::CLAIM, $claims) && is_string($claims[self::CLAIM]));
             return $claims[self::CLAIM];
         } catch (KeyNotFoundException $e) {
             return '';

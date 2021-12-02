@@ -8,17 +8,17 @@ class KeyContainer
 {
 
     /** @var array{Algorithm::*, Secret}[] */
-    private $keys;
+    private $keys = [];
 
-    /** @var int|string */
+    /** @var int|string|null */
     private $default;
 
-    /** @var int|string */
+    /** @var int|string|null */
     private $last;
 
     /**
      * @param Algorithm::* $alg
-     * @param mixed $id
+     * @param array-key $id
      */
     public function addKey($id, string $alg, Secret $secret): self
     {
@@ -28,7 +28,7 @@ class KeyContainer
     }
 
     /**
-     * @param mixed $id
+     * @param array-key $id
      */
     public function setDefaultKey($id): self
     {
@@ -37,7 +37,7 @@ class KeyContainer
     }
 
     /**
-     * @param mixed $id Key ID
+     * @param ?array-key $id Key ID
      * @return array{Algorithm::*, Secret, string|int}
      */
     public function getKey($id = null): array

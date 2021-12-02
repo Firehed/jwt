@@ -17,7 +17,13 @@ class JWT
     private KeyContainer $keys;
 
     // Actual JWT components
-    /** @var array<string, mixed> */
+    /**
+     * @var array{
+     *   alg: Algorithm::* | null,
+     *   typ: 'JWT',
+     *   kid?: array-key,
+     * }
+     */
     private $headers = [
         'alg' => null,
         'typ' => 'JWT',
@@ -97,7 +103,7 @@ class JWT
         $claims = self::b64decode($enc_claims);
 
         $token = new self($claims);
-        $token->headers = $headers;
+        $token->headers = $headers; // @phpstan-ignore-line The headers get revalidated below
         $token->signature = $signature;
         $token->setKeys($keys);
         $token->authenticate();
@@ -109,7 +115,13 @@ class JWT
     {
         $this->is_verified = false;
         list($alg, $secret, $id) = $this->keys->getKey($this->headers['kid'] ?? null);
-        // Always verify against known algorithm from key container + key id
+        // Ignore the `alg` header that was provided from the user-supplied JWT
+        // in favor of the value provided by the application via the
+        // KeyContainer. This prevents a common attack to bypass signature
+        // validation.
+        //
+        // If the algorithm that came out of the application-provided key
+        // container is *still* Algorithm::NONE, skip verification.
         $this->headers['alg'] = $alg;
         if ($this->headers['alg'] === Algorithm::NONE) {
             return;
@@ -183,6 +195,9 @@ class JWT
         $decoded = json_decode($json, true);
         if (\JSON_ERROR_NONE !== json_last_error()) {
             throw new InvalidFormatException("JSON was invalid");
+        }
+        if (!is_array($decoded)) {
+            throw new RuntimeException('Encoded JSON was not an array');
         }
         return $decoded;
     } // b64decode
