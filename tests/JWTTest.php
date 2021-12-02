@@ -214,8 +214,8 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         //  KeyContainer,
         //  should be signed
         // ]
-        /** @param Algorithm::* $alg */
         $kc = function (string $alg, Secret $s): KeyContainer {
+            /** @var Algorithm::* $alg */
             return (new KeyContainer())
                 ->addKey(1, $alg, $s);
         };
