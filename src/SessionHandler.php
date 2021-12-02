@@ -34,18 +34,16 @@ class SessionHandler implements SessionHandlerInterface
 
     /**
      * No-op, interface adherence only
-     * @return bool true, always
      */
-    public function close()
+    public function close(): bool
     {
         return true;
     }
 
     /**
      * @param string $session_id
-     * @return bool
      */
-    public function destroy($session_id)
+    public function destroy($session_id): bool
     {
         ($this->writer)($this->cookie, '', time()-86400); // Expire yesterday
         return true;
@@ -54,20 +52,18 @@ class SessionHandler implements SessionHandlerInterface
     /**
      * No-op, interface adherence only
      * @param int $maxlifetime
-     * @return bool true, always
      */
-    public function gc($maxlifetime)
+    public function gc($maxlifetime): int
     {
-        return true;
+        return 0;
     }
 
     /**
      * No-op, interface adherence only
      * @param string $save_path
      * @param string $name
-     * @return bool true, always
      */
-    public function open($save_path, $name)
+    public function open($save_path, $name): bool
     {
         return true;
     }
@@ -81,7 +77,7 @@ class SessionHandler implements SessionHandlerInterface
      * @return string the serialized session string
      * @throws JWTException if JWT processing fails, tampering is detected, etc
      */
-    public function read($session_id)
+    public function read($session_id): string
     {
         // session_id is intentionally ignored
         if (!array_key_exists($this->cookie, $_COOKIE)) {
@@ -91,6 +87,7 @@ class SessionHandler implements SessionHandlerInterface
         try {
             $jwt = JWT::fromEncoded($encoded, $this->secrets);
             $claims = $jwt->getClaims();
+            assert(array_key_exists(self::CLAIM, $claims) && is_string($claims[self::CLAIM]));
             return $claims[self::CLAIM];
         } catch (KeyNotFoundException $e) {
             return '';
@@ -104,11 +101,10 @@ class SessionHandler implements SessionHandlerInterface
      *
      * @param string $session_id (unused)
      * @param string $session_data the serialized session data
-     * @return bool true if the cookie header was set
      * @throws OverflowException if there is too much session data
      * @throws JWTException if the data cannot be signed
      */
-    public function write($session_id, $session_data)
+    public function write($session_id, $session_data): bool
     {
         $data = [
             'jti' => $session_id,
