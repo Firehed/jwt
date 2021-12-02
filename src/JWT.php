@@ -17,7 +17,13 @@ class JWT
     private KeyContainer $keys;
 
     // Actual JWT components
-    /** @var array<string, mixed> */
+    /**
+     * @var array{
+     *   alg: Algorithm::* | null,
+     *   typ: 'JWT',
+     *   kid?: array-key,
+     * }
+     */
     private $headers = [
         'alg' => null,
         'typ' => 'JWT',
@@ -97,7 +103,7 @@ class JWT
         $claims = self::b64decode($enc_claims);
 
         $token = new self($claims);
-        $token->headers = $headers;
+        $token->headers = $headers; // @phpstan-ignore-line The headers get revalidated below
         $token->signature = $signature;
         $token->setKeys($keys);
         $token->authenticate();
@@ -189,6 +195,9 @@ class JWT
         $decoded = json_decode($json, true);
         if (\JSON_ERROR_NONE !== json_last_error()) {
             throw new InvalidFormatException("JSON was invalid");
+        }
+        if (!is_array($decoded)) {
+            throw new RuntimeException('Encoded JSON was not an array');
         }
         return $decoded;
     } // b64decode
