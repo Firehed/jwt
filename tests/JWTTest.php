@@ -105,9 +105,9 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         $expected = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6M30.eyJ1c2VyI'.
             'joiRm9vIEJhciJ9.E2gekVU0lErEsIqIWSdG7-32yVhALHr_tZu5DFfWVjM';
         $keys = (new KeyContainer())
-            ->addKey(3, Algorithm::HMAC_SHA_256, new Secret('secret'))
-            ->addKey(1, Algorithm::HMAC_SHA_384, new Secret('xxx'))
-            ->addKey(2, Algorithm::HMAC_SHA_512, new Secret('yyy'));
+            ->addKey(3, Algorithm::HmacSha256, new Secret('secret'))
+            ->addKey(1, Algorithm::HmacSha384, new Secret('xxx'))
+            ->addKey(2, Algorithm::HmacSha512, new Secret('yyy'));
         $jwt = new JWT(['user' => 'Foo Bar']);
         $jwt->setKeys($keys);
         self::assertSame(
@@ -126,9 +126,9 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         $data = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6M30.eyJ1c2VyIjoiR'.
             'm9vIEJhciJ9.E2gekVU0lErEsIqIWSdG7-32yVhALHr_tZu5DFfWVjM';
         $kc = (new KeyContainer())
-            ->addKey(2, Algorithm::HMAC_SHA_384, new Secret('xxx'))
-            ->addKey(3, Algorithm::HMAC_SHA_256, new Secret('secret'))
-            ->addKey(4, Algorithm::HMAC_SHA_512, new Secret('yyy'))
+            ->addKey(2, Algorithm::HmacSha384, new Secret('xxx'))
+            ->addKey(3, Algorithm::HmacSha256, new Secret('secret'))
+            ->addKey(4, Algorithm::HmacSha512, new Secret('yyy'))
             ->setDefaultKey(2);
         $jwt = JWT::fromEncoded($data, $kc);
         self::assertSame(
@@ -232,8 +232,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         //  KeyContainer,
         //  should be signed
         // ]
-        $kc = function (string $alg, Secret $s): KeyContainer {
-            /** @var Algorithm::* $alg */
+        $kc = function (Algorithm $alg, Secret $s): KeyContainer {
             return (new KeyContainer())
                 ->addKey(1, $alg, $s);
         };
@@ -243,7 +242,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
                     'eyJzdWIiOjEyMzQ1Njc4OTAsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.'.
                     'W1fAsUaR4A6V33l7x2e_AfV0lUMzmPVO_TLqOsixrIA',
                 ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
-                $kc(Algorithm::HMAC_SHA_256, new Secret('secret')),
+                $kc(Algorithm::HmacSha256, new Secret('secret')),
                 true,
             ],
             [
@@ -251,7 +250,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
                     'eyJmb28iOiJiYXIifQ.'.
                     '-a8BUkkRJZA0n4-o5fo3i2nN84_hp4wSelj4mWXmKbTI80cZAWsr-OkQqApZKAp4',
                 ['foo' => 'bar'],
-                $kc(Algorithm::HMAC_SHA_384, new Secret('secret')),
+                $kc(Algorithm::HmacSha384, new Secret('secret')),
                 true,
 
             ],
@@ -260,7 +259,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
                     'eyJzdWIiOjEyMzQ1Njc4OTAsIm5hbWUiOiJKb2huIERvZSIsImFkbWluIjp0cnVlfQ.'.
                     '9uDKkUhtLLsOUYzGmuUukxyn30qwDvkrtttSDri5DjeqBy6uuGsxkZuzqTLOR-r8xltGzaopJqGSQuL4Xg9q7w',
                 ['sub' => 1234567890, 'name' => 'John Doe', 'admin' => true,],
-                $kc(Algorithm::HMAC_SHA_512, new Secret('secret')),
+                $kc(Algorithm::HmacSha512, new Secret('secret')),
                 true,
             ],
             [
@@ -268,7 +267,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
                     'eyJ1cmwiOiJodHRwOi8vZXhhbXBsZS5jb20ifQ.'.
                     'TTzMKdmqJqMt93E7CTFsLiDKh0LF9hyt69fOBAS7K1M',
                 ['url' => 'http://example.com'],
-                $kc(Algorithm::HMAC_SHA_256, new Secret('secret')),
+                $kc(Algorithm::HmacSha256, new Secret('secret')),
                 true,
             ],
             [
@@ -276,7 +275,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
                     'eyJ1cmwiOiJodHRwOi8vZXhhbXBsZS5jb20ifQ.'.
                     '',
                 ['url' => 'http://example.com'],
-                $kc(Algorithm::NONE, new Secret('')),
+                $kc(Algorithm::None, new Secret('')),
                 false,
             ],
         ];
@@ -285,13 +284,13 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     private function getKeyContainer(): KeyContainer
     {
         return (new KeyContainer())
-            ->addKey(1, Algorithm::HMAC_SHA_256, new Secret('secret'))
-            ->addKey(2, Algorithm::HMAC_SHA_384, new Secret('secret'))
-            ->addKey(3, Algorithm::HMAC_SHA_512, new Secret('secret'))
-            ->addKey('HS256', Algorithm::HMAC_SHA_256, new Secret('secret'))
-            ->addKey('HS384', Algorithm::HMAC_SHA_384, new Secret('secret'))
-            ->addKey('HS512', Algorithm::HMAC_SHA_512, new Secret('secret'))
-            ->addKey('none', Algorithm::NONE, new Secret(''))
+            ->addKey(1, Algorithm::HmacSha256, new Secret('secret'))
+            ->addKey(2, Algorithm::HmacSha384, new Secret('secret'))
+            ->addKey(3, Algorithm::HmacSha512, new Secret('secret'))
+            ->addKey('HS256', Algorithm::HmacSha256, new Secret('secret'))
+            ->addKey('HS384', Algorithm::HmacSha384, new Secret('secret'))
+            ->addKey('HS512', Algorithm::HmacSha512, new Secret('secret'))
+            ->addKey('none', Algorithm::None, new Secret(''))
             ->setDefaultKey(1);
     }
 }
