@@ -19,7 +19,7 @@ class JWT
     // Actual JWT components
     /**
      * @var array{
-     *   alg: Algorithm::* | null,
+     *   alg: Algorithm | null,
      *   typ: 'JWT',
      *   kid?: array-key,
      * }
@@ -66,7 +66,7 @@ class JWT
         if ($this->is_verified) {
             return $this->claims;
         }
-        if ($this->headers['alg'] === Algorithm::NONE) {
+        if ($this->headers['alg'] === Algorithm::None) {
             throw new BadMethodCallException(
                 'This token is not verified! Either call `verify` first, or '.
                 'access the unverified claims with `getUnverifiedClaims`.'
@@ -123,7 +123,7 @@ class JWT
         // If the algorithm that came out of the application-provided key
         // container is *still* Algorithm::NONE, skip verification.
         $this->headers['alg'] = $alg;
-        if ($this->headers['alg'] === Algorithm::NONE) {
+        if ($this->headers['alg'] === Algorithm::None) {
             return;
         }
         $sig = $this->sign($secret);
@@ -147,16 +147,16 @@ class JWT
             self::b64encode($this->claims);
 
         switch ($alg) {
-            case Algorithm::NONE:
+            case Algorithm::None:
                 $data = '';
                 break;
-            case Algorithm::HMAC_SHA_256:
+            case Algorithm::HmacSha256:
                 $data = hash_hmac('SHA256', $payload, $key->reveal(), true);
                 break;
-            case Algorithm::HMAC_SHA_384:
+            case Algorithm::HmacSha384:
                 $data = hash_hmac('SHA384', $payload, $key->reveal(), true);
                 break;
-            case Algorithm::HMAC_SHA_512:
+            case Algorithm::HmacSha512:
                 $data = hash_hmac('SHA512', $payload, $key->reveal(), true);
                 break;
             default:
