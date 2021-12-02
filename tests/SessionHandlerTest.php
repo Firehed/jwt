@@ -47,6 +47,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     public function testGC(): void
     {
+        // @phpstan-ignore-next-line PHPStan has the wrong type info for the handler
         self::assertSame(0, $this->handler->gc(1));
     }
 
