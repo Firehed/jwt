@@ -47,7 +47,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     public function testGC(): void
     {
-        self::assertTrue($this->handler->gc(1));
+        self::assertSame(0, $this->handler->gc(1));
     }
 
     public function testDestroy(): void
