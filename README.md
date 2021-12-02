@@ -16,7 +16,7 @@ use Firehed\JWT;
 use Firehed\Security\Secret;
 
 $keys = new JWT\KeyContainer();
-$keys->addKey(1, JWT\Algorithm::HMAC_SHA_256, new Secret('some secret key'));
+$keys->addKey(1, JWT\Algorithm::HmacSha256, new Secret('some secret key'));
 
 $data = [
 	'some' => 'data',
@@ -37,7 +37,7 @@ use Firehed\JWT;
 use Firehed\Security\Secret;
 
 $keys = new JWT\KeyContainer();
-$keys->addKey(1, JWT\Algorithm::HMAC_SHA_256, new Secret('some secret key'));
+$keys->addKey(1, JWT\Algorithm::HmacSha256, new Secret('some secret key'));
 
 
 $jwt_string = 'some.jwt.string';
@@ -71,10 +71,10 @@ In your application config, have multiple keys and their IDs defined:
 ```php
 $keys = new KeyContainer();
 $keys->addKey('20160101',
-              Algorithm::HMAC_SHA_256,
+              Algorithm::HmacSha256,
               new Secret(base64_decode('string+generated/earlier')))
      ->addKey('20160201',
-              Algorithm::HMAC_SHA_256,
+              Algorithm::HmacSha256,
               new Secret(base64_decode('other+string/generated')));
 ```
 
@@ -161,7 +161,7 @@ use Firehed\JWT;
 use Firehed\Security\Secret;
 
 $keys = new JWT\KeyContainer();
-$keys->addKey(1, JWT\Algorithm::HMAC_SHA_256, new Secret('some secret key'));
+$keys->addKey(1, JWT\Algorithm::HmacSha256, new Secret('some secret key'));
 
 $handler = new Firehed\JWT\SessionHandler($keys);
 

@@ -1,3 +1,8 @@
+# Updating to 4.0
+Algorithms have migrated to PHP 8.1-native Enums.
+During the change, the names were adjusted to better align with common naming conventions (moving from `SNAKE_CASE` to `UpperCamelCase`).
+Any references to them will need to be updated.
+
 # Updating to 3.0
 
 To migrate from 2.x to 3.0, the only necessary change is updating how you use Algorithm:

@@ -30,7 +30,7 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
     public function setUp(): void
     {
         $this->container = (new KeyContainer())
-            ->addKey(1, Algorithm::HMAC_SHA_256, new Secret('t0p $3cr37'));
+            ->addKey(1, Algorithm::HmacSha256, new Secret('t0p $3cr37'));
         $this->handler = new SessionHandler($this->container);
         $this->handler->setWriter([$this, 'setCookie']);
     }
