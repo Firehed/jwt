@@ -2,6 +2,9 @@
 
 namespace Firehed\JWT;
 
+/**
+ * Constants for algorithm header parameter values in RFC7518 Section 3.1
+ */
 interface Algorithm
 {
     const NONE = 'none';
