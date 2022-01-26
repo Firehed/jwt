@@ -25,8 +25,8 @@ class JWT
      * }
      */
     private $headers = [
-        'alg' => null,
-        'typ' => 'JWT',
+        Header::ALGORITHM => null,
+        Header::TYPE => 'JWT',
     ];
 
     /** @var array<mixed> */
@@ -47,8 +47,8 @@ class JWT
     public function getEncoded($keyId = null): string
     {
         list($alg, $secret, $id) = $this->keys->getKey($keyId);
-        $this->headers['alg'] = $alg;
-        $this->headers['kid'] = $id;
+        $this->headers[Header::ALGORITHM] = $alg;
+        $this->headers[Header::KEY_ID] = $id;
 
         $headers = self::b64encode($this->headers);
         $claims = self::b64encode($this->claims);
@@ -66,7 +66,7 @@ class JWT
         if ($this->is_verified) {
             return $this->claims;
         }
-        if ($this->headers['alg'] === Algorithm::NONE) {
+        if ($this->headers[Header::ALGORITHM] === Algorithm::NONE) {
             throw new BadMethodCallException(
                 'This token is not verified! Either call `verify` first, or '.
                 'access the unverified claims with `getUnverifiedClaims`.'
@@ -122,8 +122,8 @@ class JWT
         //
         // If the algorithm that came out of the application-provided key
         // container is *still* Algorithm::NONE, skip verification.
-        $this->headers['alg'] = $alg;
-        if ($this->headers['alg'] === Algorithm::NONE) {
+        $this->headers[Header::ALGORITHM] = $alg;
+        if ($alg === Algorithm::NONE) {
             return;
         }
         $sig = $this->sign($secret);
@@ -135,12 +135,12 @@ class JWT
     /** @return int|string|null */
     public function getKeyID()
     {
-        return $this->headers['kid'] ?? null;
+        return $this->headers[Header::KEY_ID] ?? null;
     } // getKeyID
 
     private function sign(Secret $key): string
     {
-        $alg = $this->headers['alg']; // DEFAULT?
+        $alg = $this->headers[Header::ALGORITHM]; // DEFAULT?
 
         $payload = self::b64encode($this->headers).
             '.'.
@@ -171,14 +171,14 @@ class JWT
 
     private function enforceExpirations(): void
     {
-        if (isset($this->claims['exp'])) {
-            $exp = $this->claims['exp'];
+        if (isset($this->claims[Claim::EXPIRATION_TIME])) {
+            $exp = $this->claims[Claim::EXPIRATION_TIME];
             if (time() >= $exp) { // 4.1.4 says "on or after"
                 throw new TokenExpiredException("JWT has expired");
             }
         }
-        if (isset($this->claims['nbf'])) {
-            $nbf = $this->claims['nbf'];
+        if (isset($this->claims[Claim::NOT_BEFORE])) {
+            $nbf = $this->claims[Claim::NOT_BEFORE];
             if (time() < $nbf) {
                 throw new TokenNotYetValidException("JWT is not yet valid");
             }
