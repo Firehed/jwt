@@ -7,7 +7,7 @@ namespace Firehed\JWT;
 /**
  * Constants for registered header parameter names in RFC7515 Section 4.1
  */
-class Header
+interface Header
 {
     public const ALGORITHM = 'alg'; // 4.1.1
     public const JWK_SET_URL = 'jku'; // 4.1.2
