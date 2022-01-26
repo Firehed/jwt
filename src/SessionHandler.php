@@ -107,10 +107,10 @@ class SessionHandler implements SessionHandlerInterface
     public function write($session_id, $session_data): bool
     {
         $data = [
-            'jti' => $session_id,
+            Claim::JWT_ID => $session_id,
 //            future considerations:
-//            'nbf' => not before,
-//            'exp' => expires,
+//            Claim::NOT_BEFORE => not before,
+//            Claim::EXPIRATION_TIME => expires,
             self::CLAIM => $session_data,
         ];
         $jwt = (new JWT($data))
