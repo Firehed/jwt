@@ -211,4 +211,15 @@ class JWT
         }
         return rtrim(strtr(base64_encode($json), '+/', '-_'), '=');
     } // b64encode
+
+    public function __debugInfo(): array
+    {
+        return [
+            'headers' => $this->headers,
+            'claims' => $this->claims,
+            'signature' => isset($this->signature) ? $this->signature : '(not signed)',
+            'verified' => $this->is_verified,
+            'keyContainer' => isset($this->keys) ? '(set)' : '(not set)',
+        ];
+    }
 }
