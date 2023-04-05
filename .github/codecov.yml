@@ -1,0 +1,7 @@
+# https://docs.codecov.com/docs/codecovyml-reference
+codecov:
+  notify:
+    # No expectation of coverage differing across the build matrix at this time
+    after_n_builds: 1
+    # Send ASAP
+    wait_for_ci: false
