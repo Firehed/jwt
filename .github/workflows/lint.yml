@@ -39,3 +39,13 @@ jobs:
 
       - name: PHPCS
         run: composer phpcs
+
+  # TODO: run only if .github/codecov.yml changed
+  codecov-config:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Send to Codecov to validate
+        run: curl -X POST --data-binary @.github/codecov.yml https://codecov.io/validate
