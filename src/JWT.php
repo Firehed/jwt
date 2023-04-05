@@ -163,7 +163,7 @@ class JWT
                 throw new Exception("Unsupported algorithm");
             // use openssl_sign and friends to do the signing
         }
-        if ($data === false) {
+        if ($data === false) { // @phpstan-ignore-line this is valid in PHP<=7.4
             throw new UnexpectedValueException('Payload could not be hashed');
         }
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
