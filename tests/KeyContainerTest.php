@@ -10,17 +10,6 @@ use Firehed\Security\Secret;
  */
 class KeyContainerTest extends \PHPUnit\Framework\TestCase
 {
-
-    /**
-     */
-    public function testConstruct(): void
-    {
-        self::assertInstanceOf(
-            KeyContainer::class,
-            new KeyContainer()
-        );
-    }
-
     public function testSetDefaultKeyReturnsThis(): void
     {
         $kc = new KeyContainer();
