@@ -56,7 +56,7 @@ class JWT
 
         $headers = self::b64encode($this->headers);
         $claims = self::b64encode($this->claims);
-        $signature = $this->sign($secret);
+        $signature = self::sign($this->headers, $this->claims, $alg, $secret);
         return sprintf('%s.%s.%s', $headers, $claims, $signature);
     }
 
@@ -126,11 +126,10 @@ class JWT
         //
         // If the algorithm that came out of the application-provided key
         // container is *still* Algorithm::NONE, skip verification.
-        $this->headers[Header::ALGORITHM] = $alg;
         if ($alg === Algorithm::NONE) {
             return;
         }
-        $sig = $this->sign($secret);
+        $sig = self::sign($this->headers, $this->claims, $alg, $secret);
         if (hash_equals($sig, $this->signature)) {
             $this->is_verified = true;
         }
@@ -142,13 +141,16 @@ class JWT
         return $this->headers[Header::KEY_ID] ?? null;
     } // getKeyID
 
-    private function sign(Secret $key): string
+    /**
+     * @param Headers $headers
+     * @param mixed[] $claims
+     * @param Algorithm::* $alg
+     */
+    private static function sign(array $headers, array $claims, string $alg, Secret $key): string
     {
-        $alg = $this->headers[Header::ALGORITHM]; // DEFAULT?
-
-        $payload = self::b64encode($this->headers).
+        $payload = self::b64encode($headers).
             '.'.
-            self::b64encode($this->claims);
+            self::b64encode($claims);
 
         switch ($alg) {
             case Algorithm::NONE:
