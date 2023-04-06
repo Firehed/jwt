@@ -103,11 +103,12 @@ class JWT
             );
         }
         list($enc_header, $enc_claims, $signature) = $parts;
+        /** @var Headers (we hope) */
         $headers = self::b64decode($enc_header);
         $claims = self::b64decode($enc_claims);
 
         $token = new self($claims);
-        $token->headers = $headers; // @phpstan-ignore-line The headers get revalidated below
+        $token->headers = $headers;
         $token->signature = $signature;
         $token->setKeys($keys);
         $token->authenticate();
