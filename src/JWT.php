@@ -10,6 +10,13 @@ use Firehed\Security\Secret;
 use RuntimeException;
 use UnexpectedValueException;
 
+/**
+ * @phpstan-type Headers array{
+ *   alg: Algorithm::* | null,
+ *   typ: 'JWT',
+ *   kid?: array-key,
+ * }
+ */
 class JWT
 {
     private bool $is_verified = false;
@@ -17,12 +24,9 @@ class JWT
     private KeyContainer $keys;
 
     // Actual JWT components
+
     /**
-     * @var array{
-     *   alg: Algorithm::* | null,
-     *   typ: 'JWT',
-     *   kid?: array-key,
-     * }
+     * @var Headers
      */
     private $headers = [
         Header::ALGORITHM => null,
