@@ -152,6 +152,17 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         $tok->getEncoded();
     }
 
+    public function testNoneAccessFailsPredictably(): void
+    {
+        $keys = $this->getKeyContainer();
+        // {"alg":"none","typ":"JWT"}.{"a":"b"}.
+        $token = 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJhIjoiYiJ9.';
+        $decoded = JWT::fromEncoded($token, $keys);
+        // Should warn about invalid use, not bad signature.
+        self::expectException(BadMethodCallException::class);
+        $decoded->getClaims();
+    }
+
     public function testNewTokenAllowsAccessToClaims(): void
     {
         $data = ['data' => true];
