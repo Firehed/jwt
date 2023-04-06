@@ -152,7 +152,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         $tok->getEncoded();
     }
 
-    public function testNoneAccessFailsPredictably(): void
+    public function testNoneAccessWithKeysFailsPredictably(): void
     {
         $keys = $this->getKeyContainer();
         // {"alg":"none","typ":"JWT"}.{"a":"b"}.
@@ -161,6 +161,17 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         // Should warn about invalid use, not bad signature.
         self::expectException(BadMethodCallException::class);
         $decoded->getClaims();
+    }
+
+    public function testNoneAccessWithoutKeysFailsPredictably(): void
+    {
+        $keys = new KeyContainer();
+        // {"alg":"none","typ":"JWT"}.{"a":"b"}.
+        $token = 'eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0.eyJhIjoiYiJ9.';
+        // No key id in header AND key container is empty and has no default.
+        // This is a configuration issue.
+        self::expectException(KeyNotFoundException::class);
+        $decoded = JWT::fromEncoded($token, $keys);
     }
 
     public function testNewTokenAllowsAccessToClaims(): void
