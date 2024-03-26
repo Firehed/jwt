@@ -71,10 +71,7 @@ class JWT
             return $this->claims;
         }
         if ($this->headers[Header::ALGORITHM] === Algorithm::NONE) {
-            throw new BadMethodCallException(
-                'This token is not verified! Either call `verify` first, or '.
-                'access the unverified claims with `getUnverifiedClaims`.'
-            );
+            throw new UnverifiedClaimsException();
         }
         throw new InvalidSignatureException("Signature is invalid");
     } // getClaims
@@ -119,7 +116,7 @@ class JWT
     private function authenticate(): void
     {
         $this->is_verified = false;
-        list($alg, $secret, $id) = $this->keys->getKey($this->headers['kid'] ?? null);
+        list($alg, $secret, $id) = $this->keys->getKey($this->getKeyID());
         // Ignore the `alg` header that was provided from the user-supplied JWT
         // in favor of the value provided by the application via the
         // KeyContainer. This prevents a common attack to bypass signature
