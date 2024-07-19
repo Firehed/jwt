@@ -5,12 +5,17 @@ namespace Firehed\JWT;
 /**
  * Constants for algorithm header parameter values in RFC7518 Section 3.1
  */
-interface Algorithm
+enum Algorithm: string
 {
-    const NONE = 'none';
-    const HMAC_SHA_256 = 'HS256';
-    const HMAC_SHA_384 = 'HS384';
-    const HMAC_SHA_512 = 'HS512';
+    case None = 'none';
+    case HmacSha256 = 'HS256';
+    case HmacSha384 = 'HS384';
+    case HmacSha512 = 'HS512';
+
+    const NONE = Algorithm::None;
+    const HMAC_SHA_256 = Algorithm::HmacSha256;
+    const HMAC_SHA_384 = Algorithm::HmacSha384;
+    const HMAC_SHA_512 = Algorithm::HmacSha512;
     const ECDSA_256 = 'ES256';
     const ECDSA_384 = 'ES384';
     const ECDSA_512 = 'ES512';
