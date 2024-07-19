@@ -153,6 +153,7 @@ class JWT
             Algorithm::HmacSha256 => hash_hmac('SHA256', $payload, $key->reveal(), true),
             Algorithm::HmacSha384 => hash_hmac('SHA384', $payload, $key->reveal(), true),
             Algorithm::HmacSha512 => hash_hmac('SHA512', $payload, $key->reveal(), true),
+            default => throw new Exception('Unsupported algorithm'),
         };
         // use openssl_sign and friends to do the signing
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
