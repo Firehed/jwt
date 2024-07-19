@@ -8,39 +8,32 @@ class KeyContainer
 {
 
     /** @var array{Algorithm::*, Secret}[] */
-    private $keys = [];
+    private array $keys = [];
 
-    /** @var int|string|null */
-    private $default;
+    private int|string|null $default = null;
 
-    /** @var int|string|null */
-    private $last;
+    private int|string|null $last = null;
 
     /**
      * @param Algorithm::* $alg
-     * @param array-key $id
      */
-    public function addKey($id, string $alg, Secret $secret): self
+    public function addKey(int|string $id, string $alg, Secret $secret): self
     {
         $this->keys[$id] = [$alg, $secret];
         $this->last = $id;
         return $this;
     }
 
-    /**
-     * @param array-key $id
-     */
-    public function setDefaultKey($id): self
+    public function setDefaultKey(int|string $id): self
     {
         $this->default = $id;
         return $this;
     }
 
     /**
-     * @param ?array-key $id Key ID
      * @return array{Algorithm::*, Secret, string|int}
      */
-    public function getKey($id = null): array
+    public function getKey(int|string|null $id = null): array
     {
         // Prefer explicitly requested > explicit default > most recently added
         $id = $id ?? $this->default ?? $this->last;
@@ -49,7 +42,7 @@ class KeyContainer
                 "No key found with id '$id'"
             );
         }
-        list($alg, $secret) = $this->keys[$id];
+        [$alg, $secret] = $this->keys[$id];
         return [$alg, $secret, $id];
     }
 }
