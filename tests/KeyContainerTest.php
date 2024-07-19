@@ -5,13 +5,10 @@ namespace Firehed\JWT;
 
 use Firehed\Security\Secret;
 
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Small;
-use PHPUnit\Framework\TestCase;
-
-#[CoversClass(KeyContainer::class)]
-#[Small]
-class KeyContainerTest extends TestCase
+/**
+ * @covers Firehed\JWT\KeyContainer
+ */
+class KeyContainerTest extends \PHPUnit\Framework\TestCase
 {
     public function testSetDefaultKeyReturnsThis(): void
     {

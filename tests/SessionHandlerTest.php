@@ -5,25 +5,28 @@ namespace Firehed\JWT;
 use Firehed\Security\Secret;
 use InvalidArgumentException;
 use OverflowException;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Small;
-use PHPUnit\Framework\TestCase;
 use SessionHandlerInterface;
 
-#[CoversClass(SessionHandler::class)]
-#[Small]
-class SessionHandlerTest extends TestCase
+/**
+ * @covers Firehed\JWT\SessionHandler
+ */
+class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 {
 
     /**
      * Stores the data that would have gone to `setcookie`
+     * @var string
      */
-    private string $cookieData = '';
+    private $cookieData = '';
 
-    private KeyContainer $container;
+    /** @var KeyContainer */
+    private $container;
 
-    private SessionHandler $handler;
+    /** @var SessionHandlerInterface */
+    private $handler;
 
+    /**
+     */
     public function setUp(): void
     {
         $this->container = (new KeyContainer())

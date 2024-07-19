@@ -6,11 +6,10 @@ namespace Firehed\JWT;
 
 use Firehed\Security\Secret;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Small;
 
-#[CoversClass(Codec::class)]
-#[Small]
+/**
+ * @covers Codec
+ */
 class CodecTest extends TestCase
 {
     private Codec $codec;
