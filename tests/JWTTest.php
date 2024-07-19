@@ -6,17 +6,21 @@ use BadMethodCallException;
 use Error;
 use Firehed\Security\Secret;
 use RuntimeException;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use PHPUnit\Framework\Attributes\Small;
+use PHPUnit\Framework\TestCase;
 
-/**
- * @covers Firehed\JWT\JWT
- */
-class JWTTest extends \PHPUnit\Framework\TestCase
+#[CoversClass(JWT::class)]
+#[Small]
+class JWTTest extends TestCase
 {
 
     /**
-     * @dataProvider vectors
      * @param array<string, mixed> $exp_claims
      */
+    #[DataProvider('vectors')]
     public function testDecode(string $vector, array $exp_claims, KeyContainer $keys): void
     {
         $JWT = JWT::fromEncoded($vector, $keys);
@@ -70,9 +74,9 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * @dataProvider vectors
      * @param array<string, mixed> $claims
      */
+    #[DataProvider('vectors')]
     public function testEncode(string $vector, array $claims, KeyContainer $keys): void
     {
         $tok = new JWT($claims);
@@ -203,9 +207,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
         $jwt->getClaims();
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
+    #[DoesNotPerformAssertions]
     public function testConstruct(): void
     {
         $jwt = new JWT(['foo' => 'bar']);
@@ -224,7 +226,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array{string, array<string, mixed>, KeyContainer, bool}[]
      */
-    public function vectors(): array
+    public static function vectors(): array
     {
         // [
         //  encoded JWT,
