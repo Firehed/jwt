@@ -224,7 +224,7 @@ class JWTTest extends \PHPUnit\Framework\TestCase
     /**
      * @return array{string, array<string, mixed>, KeyContainer, bool}[]
      */
-    public function vectors(): array
+    public static function vectors(): array
     {
         // [
         //  encoded JWT,
