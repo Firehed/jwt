@@ -25,13 +25,13 @@ class JWT
      *   kid?: array-key,
      * }
      */
-    private $headers = [
+    private array $headers = [
         Header::ALGORITHM => null,
         Header::TYPE => 'JWT',
     ];
 
     /** @var array<mixed> */
-    private $claims = [];
+    private array $claims = [];
 
     private string $signature;
 
@@ -44,10 +44,9 @@ class JWT
         $this->is_verified = true;
     } // __construct
 
-    /** @param int|string $keyId */
-    public function getEncoded($keyId = null): string
+    public function getEncoded(int|string|null $keyId = null): string
     {
-        list($alg, $secret, $id) = $this->keys->getKey($keyId);
+        [$alg, $secret, $id] = $this->keys->getKey($keyId);
         $this->headers[Header::ALGORITHM] = $alg;
         $this->headers[Header::KEY_ID] = $id;
 
@@ -136,8 +135,7 @@ class JWT
         }
     }
 
-    /** @return int|string|null */
-    public function getKeyID()
+    public function getKeyID(): int|string|null
     {
         return $this->headers[Header::KEY_ID] ?? null;
     } // getKeyID
@@ -166,9 +164,6 @@ class JWT
             default:
                 throw new Exception("Unsupported algorithm");
             // use openssl_sign and friends to do the signing
-        }
-        if ($data === false) { // @phpstan-ignore-line this is valid in PHP<=7.4
-            throw new UnexpectedValueException('Payload could not be hashed');
         }
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     } // sign
