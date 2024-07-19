@@ -93,7 +93,7 @@ class JWT
     public static function fromEncoded(
         #[SensitiveParameter]
         string $encoded,
-        KeyContainer $keys,
+        KeyContainer $keys
     ): self {
         // This should exactly follow s7.2 of the IETF JWT spec
         $parts = explode('.', $encoded);
