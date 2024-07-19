@@ -20,7 +20,7 @@ class JWT
     // Actual JWT components
     /**
      * @var array{
-     *   alg: Algorithm::* | null,
+     *   alg: Algorithm | null,
      *   typ: 'JWT',
      *   kid?: array-key,
      * }
@@ -66,7 +66,7 @@ class JWT
         if ($this->is_verified) {
             return $this->claims;
         }
-        if ($this->headers[Header::ALGORITHM] === Algorithm::NONE) {
+        if ($this->headers[Header::ALGORITHM] === Algorithm::None) {
             throw new BadMethodCallException(
                 'This token is not verified! Either call `verify` first, or '.
                 'access the unverified claims with `getUnverifiedClaims`.'
@@ -126,7 +126,7 @@ class JWT
         // If the algorithm that came out of the application-provided key
         // container is *still* Algorithm::NONE, skip verification.
         $this->headers[Header::ALGORITHM] = $alg;
-        if ($alg === Algorithm::NONE) {
+        if ($alg === Algorithm::None) {
             return;
         }
         $sig = $this->sign($secret);
@@ -148,23 +148,14 @@ class JWT
             '.'.
             self::b64encode($this->claims);
 
-        switch ($alg) {
-            case Algorithm::NONE:
-                $data = '';
-                break;
-            case Algorithm::HMAC_SHA_256:
-                $data = hash_hmac('SHA256', $payload, $key->reveal(), true);
-                break;
-            case Algorithm::HMAC_SHA_384:
-                $data = hash_hmac('SHA384', $payload, $key->reveal(), true);
-                break;
-            case Algorithm::HMAC_SHA_512:
-                $data = hash_hmac('SHA512', $payload, $key->reveal(), true);
-                break;
-            default:
-                throw new Exception("Unsupported algorithm");
-            // use openssl_sign and friends to do the signing
-        }
+        $data = match ($alg) {
+            Algorithm::None => '',
+            Algorithm::HmacSha256 => hash_hmac('SHA256', $payload, $key->reveal(), true),
+            Algorithm::HmacSha384 => hash_hmac('SHA384', $payload, $key->reveal(), true),
+            Algorithm::HmacSha512 => hash_hmac('SHA512', $payload, $key->reveal(), true),
+            default => throw new Exception('Unsupported algorithm'),
+        };
+        // use openssl_sign and friends to do the signing
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     } // sign
 

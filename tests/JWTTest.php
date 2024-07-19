@@ -234,8 +234,7 @@ class JWTTest extends TestCase
         //  KeyContainer,
         //  should be signed
         // ]
-        $kc = function (string $alg, Secret $s): KeyContainer {
-            /** @var Algorithm::* $alg */
+        $kc = function (Algorithm $alg, Secret $s): KeyContainer {
             return (new KeyContainer())
                 ->addKey(1, $alg, $s);
         };
