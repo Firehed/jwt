@@ -15,15 +15,12 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     /**
      * Stores the data that would have gone to `setcookie`
-     * @var string
      */
-    private $cookieData = '';
+    private string $cookieData = '';
 
-    /** @var KeyContainer */
-    private $container;
+    private KeyContainer $container;
 
-    /** @var SessionHandlerInterface */
-    private $handler;
+    private SessionHandler $handler;
 
     /**
      */
