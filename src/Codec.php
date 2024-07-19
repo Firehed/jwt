@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Firehed\JWT;
 
+use SensitiveParameter;
+
 /**
  * Convenience wrapper for key management. The intent is to set up an instance
  * of this class once in your application's DI container, and pass it around
@@ -29,8 +31,10 @@ class Codec
         return $jwt->getEncoded($keyId);
     }
 
-    public function decode(string $jwt): JWT
-    {
+    public function decode(
+        #[SensitiveParameter]
+        string $jwt
+    ): JWT {
         return JWT::fromEncoded($jwt, $this->keys);
     }
 }

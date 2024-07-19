@@ -8,6 +8,7 @@ use BadMethodCallException;
 use Exception;
 use Firehed\Security\Secret;
 use RuntimeException;
+use SensitiveParameter;
 use UnexpectedValueException;
 
 class JWT
@@ -89,8 +90,11 @@ class JWT
         return $this;
     }
 
-    public static function fromEncoded(string $encoded, KeyContainer $keys): self
-    {
+    public static function fromEncoded(
+        #[SensitiveParameter]
+        string $encoded,
+        KeyContainer $keys,
+    ): self {
         // This should exactly follow s7.2 of the IETF JWT spec
         $parts = explode('.', $encoded);
         if (3 !== count($parts)) {
