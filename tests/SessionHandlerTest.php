@@ -22,8 +22,6 @@ class SessionHandlerTest extends \PHPUnit\Framework\TestCase
 
     private SessionHandler $handler;
 
-    /**
-     */
     public function setUp(): void
     {
         $this->container = (new KeyContainer())

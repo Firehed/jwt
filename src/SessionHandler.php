@@ -12,11 +12,9 @@ class SessionHandler implements SessionHandlerInterface
     const CLAIM = 'sd';
     const DEFAULT_COOKIE = 'jwt_sid';
 
-    /** @var string */
-    private $cookie = self::DEFAULT_COOKIE;
+    private string $cookie = self::DEFAULT_COOKIE;
 
-    /** @var KeyContainer */
-    private $secrets;
+    private KeyContainer $secrets;
 
     /** @var callable */
     private $writer = 'setcookie';

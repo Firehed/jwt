@@ -24,13 +24,13 @@ class JWT
      *   kid?: array-key,
      * }
      */
-    private $headers = [
+    private array $headers = [
         Header::ALGORITHM => null,
         Header::TYPE => 'JWT',
     ];
 
     /** @var array<mixed> */
-    private $claims = [];
+    private array $claims = [];
 
     private string $signature;
 
