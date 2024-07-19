@@ -38,10 +38,7 @@ class SessionHandler implements SessionHandlerInterface
         return true;
     }
 
-    /**
-     * @param string $session_id
-     */
-    public function destroy($session_id): bool
+    public function destroy(string $session_id): bool
     {
         ($this->writer)($this->cookie, '', time()-86400); // Expire yesterday
         return true;
@@ -49,19 +46,16 @@ class SessionHandler implements SessionHandlerInterface
 
     /**
      * No-op, interface adherence only
-     * @param int $maxlifetime
      */
-    public function gc($maxlifetime): int
+    public function gc(int $maxlifetime): int
     {
         return 0;
     }
 
     /**
      * No-op, interface adherence only
-     * @param string $save_path
-     * @param string $name
      */
-    public function open($save_path, $name): bool
+    public function open(string $save_path, string $name): bool
     {
         return true;
     }
@@ -71,11 +65,10 @@ class SessionHandler implements SessionHandlerInterface
      * returns the data to be natively unserialized into the $_SESSION
      * superglobal
      *
-     * @param string $session_id (unused)
      * @return string the serialized session string
      * @throws JWTException if JWT processing fails, tampering is detected, etc
      */
-    public function read($session_id): string
+    public function read(string $session_id): string
     {
         // session_id is intentionally ignored
         if (!array_key_exists($this->cookie, $_COOKIE)) {
@@ -97,12 +90,10 @@ class SessionHandler implements SessionHandlerInterface
     /**
      * Writes the session data to a cookie containing a signed JWT
      *
-     * @param string $session_id (unused)
-     * @param string $session_data the serialized session data
      * @throws OverflowException if there is too much session data
      * @throws JWTException if the data cannot be signed
      */
-    public function write($session_id, $session_data): bool
+    public function write(string $session_id, string $session_data): bool
     {
         $data = [
             Claim::JWT_ID => $session_id,

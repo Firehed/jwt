@@ -43,10 +43,9 @@ class JWT
         $this->is_verified = true;
     } // __construct
 
-    /** @param int|string $keyId */
-    public function getEncoded($keyId = null): string
+    public function getEncoded(int|string|null $keyId = null): string
     {
-        list($alg, $secret, $id) = $this->keys->getKey($keyId);
+        [$alg, $secret, $id] = $this->keys->getKey($keyId);
         $this->headers[Header::ALGORITHM] = $alg;
         $this->headers[Header::KEY_ID] = $id;
 
@@ -132,8 +131,7 @@ class JWT
         }
     }
 
-    /** @return int|string|null */
-    public function getKeyID()
+    public function getKeyID(): int|string|null
     {
         return $this->headers[Header::KEY_ID] ?? null;
     } // getKeyID
@@ -162,9 +160,6 @@ class JWT
             default:
                 throw new Exception("Unsupported algorithm");
             // use openssl_sign and friends to do the signing
-        }
-        if ($data === false) {
-            throw new UnexpectedValueException('Payload could not be hashed');
         }
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     } // sign
