@@ -42,4 +42,14 @@ class KeyContainer
         [$alg, $secret] = $this->keys[$id];
         return [$alg, $secret, $id];
     }
+
+    public function __debugInfo(): array
+    {
+        return [
+            'keys' => array_values(array_map(function ($keyInfo, $id) {
+                return ['id' => $id, 'alg' => $keyInfo[0]];
+            }, $this->keys, array_keys($this->keys))),
+            'default' => $this->default,
+        ];
+    }
 }
